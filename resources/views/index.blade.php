@@ -7,8 +7,7 @@
 
 <!-- GSAP CDN -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-<link rel="stylesheet"  href="{{ asset('css/style.css') }}" />
-</head>
+<link rel="stylesheet" href="{{ asset('css/style.css') }}" /></head>
 <body>
   <div class="container" id="page">
     <header>

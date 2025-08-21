@@ -7,12 +7,14 @@
 
 <!-- GSAP CDN -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
 <link rel="stylesheet" href="{{ asset('css/style.css') }}" /></head>
+
 <body>
   <div class="container" id="page">
     <header>
       <div class="brand">Study Buddy</div>
-      <div class="signup">🔒 SIGNUP</div>
+      <div class="signup" id="signupButton">🔒 SIGNUP</div>
     </header>
 
     <main class="hero">
@@ -184,6 +186,8 @@
               <div class="small-muted">Quick and secure demo</div>
             </div>
           </div>
+
+          
 
         </div>
 

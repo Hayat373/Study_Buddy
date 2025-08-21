@@ -166,3 +166,7 @@
 
   // Final note in console
   console.log('Study Buddy demo loaded — owl interactive & facial signup simulated.');
+  
+  document.getElementById('signupButton').addEventListener('click', function() {
+        window.location.href = '/auth'; // Redirect to the auth page
+    });

@@ -14,7 +14,7 @@
   <div class="container" id="page">
     <header>
       <div class="brand">Study Buddy</div>
-      <div class="signup" id="signupButton">🔒 SIGNUP</div>
+      <div class="signup" id="signupButton">🔒 SIGNUP / LOGIN</div>
     </header>
 
     <main class="hero">

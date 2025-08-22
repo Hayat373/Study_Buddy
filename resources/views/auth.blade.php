@@ -35,9 +35,7 @@
     <div class="container">
         <div class="hero-content">
             <div class="logo">
-                <div class="logo-icon">
-                    <i class="fas fa-graduation-cap"></i>
-                </div>
+                
                 <span>Study Buddy</span>
             </div>
             

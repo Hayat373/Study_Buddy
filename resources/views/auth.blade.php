@@ -35,13 +35,12 @@
     <div class="container">
         <div class="hero-content">
             <div class="logo">
-                
                 <span>Study Buddy</span>
             </div>
             
             <h1>Unlock Your Potential:<br>The Future of Learning is Here</h1>
             
-            <p class="subtitle">Immersive volumetric content, quizzes, group study — and an AI-powered study buddy to help you level up.</p>
+            <p class="subtitle">Immersive volumetric content, quizzes, group study -- and an AI-powered study buddy to help you level up.</p>
             
             <div class="features">
                 <div class="feature">
@@ -50,7 +49,7 @@
                 </div>
                 <div class="feature">
                     <i class="fas fa-microphone"></i>
-                    <span>Speak answers — instant scoring and feedback</span>
+                    <span>Speak answers -- instant scoring and feedback</span>
                 </div>
                 <div class="feature">
                     <i class="fas fa-users"></i>
@@ -66,130 +65,138 @@
                 <div class="auth-tab" data-tab="signup">Sign Up</div>
             </div>
             
+            <!-- Login Form -->
             <div class="auth-form active" id="loginForm">
-                <div class="form-group">
-                    <label for="loginEmail">Email or Username</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-user input-icon"></i>
-                        <input type="text" id="loginEmail" placeholder="Enter your email or username">
+                <form id="loginForm" method="POST" action="/api/login">
+                    @csrf
+                    <div class="form-group">
+                        <label for="loginEmail">Email or Username</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-user input-icon"></i>
+                            <input type="text" id="loginEmail" name="username" placeholder="Enter your email or username" required>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="loginPassword">Password</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-lock input-icon"></i>
-                        <input type="password" id="loginPassword" placeholder="Enter your password">
+                    
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock input-icon"></i>
+                            <input type="password" id="loginPassword" name="password" placeholder="Enter your password" required>
+                        </div>
                     </div>
-                </div>
-                
-                <a href="#" class="forgot-password">Forgot password?</a>
-                
-                <button class="btn btn-primary">Login to Study Buddy</button>
-                
-                <div class="divider"><span>Or continue with</span></div>
-                
-                <div class="social-auth">
-                    <button class="btn btn-social">
-                        <i class="fab fa-google"></i>
-                        Google
+                    
+                    <a href="#" class="forgot-password">Forgot password?</a>
+                    
+                    <button type="submit" class="btn btn-primary">Login to Study Buddy</button>
+                    
+                    <div class="divider"><span>Or continue with</span></div>
+                    
+                    <div class="social-auth">
+                        <button type="button" class="btn btn-social">
+                            <i class="fab fa-google"></i>
+                            Google
+                        </button>
+                        <button type="button" class="btn btn-social">
+                            <i class="fab fa-apple"></i>
+                            Apple
+                        </button>
+                    </div>
+                    
+                    <button type="button" class="btn btn-face-auth" id="faceLoginBtn">
+                        <i class="fas fa-face-recognition"></i>
+                        Facial Recognition
                     </button>
-                    <button class="btn btn-social">
-                        <i class="fab fa-apple"></i>
-                        Apple
-                    </button>
-                </div>
-                
-                <button class="btn btn-face-auth" id="faceLoginBtn">
-                    <i class="fas fa-face-recognition"></i>
-                    Facial Recognition
-                </button>
-                
-                <p class="terms">By continuing, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.</p>
+                    
+                    <p class="terms">By continuing, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.</p>
+                </form>
             </div>
             
+            <!-- Signup Form -->
             <div class="auth-form" id="signupForm">
-                <div class="profile-picture-upload">
-                    <div class="profile-preview" id="profilePreview">
-                        <i class="fas fa-user-plus"></i>
-                        <img id="profileImage" src="" alt="Profile Preview">
+                <form id="signupForm" method="POST" action="/api/register" enctype="multipart/form-data">
+                    @csrf
+                    <div class="profile-picture-upload">
+                        <div class="profile-preview" id="profilePreview">
+                            <i class="fas fa-user-plus"></i>
+                            <img id="profileImage" src="" alt="Profile Preview">
+                        </div>
+                        <div class="upload-text">
+                            <p>Profile Picture</p>
+                            <span>Click to upload a photo (optional)</span>
+                        </div>
                     </div>
-                    <div class="upload-text">
-                        <p>Profile Picture</p>
-                        <span>Click to upload a photo (optional)</span>
+                    
+                    <div class="form-group">
+                        <label for="signupUsername">Username</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-user input-icon"></i>
+                            <input type="text" id="signupUsername" name="username" placeholder="Choose a username" required>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="signupUsername">Username</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-user input-icon"></i>
-                        <input type="text" id="signupUsername" placeholder="Choose a username">
+                    
+                    <div class="form-group">
+                        <label for="signupEmail">Email</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-envelope input-icon"></i>
+                            <input type="email" id="signupEmail" name="email" placeholder="Enter your email" required>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="signupEmail">Email</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-envelope input-icon"></i>
-                        <input type="email" id="signupEmail" placeholder="Enter your email">
+                    
+                    <div class="form-group">
+                        <label for="signupPassword">Password</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock input-icon"></i>
+                            <input type="password" id="signupPassword" name="password" placeholder="Create a password" required>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="signupPassword">Password</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-lock input-icon"></i>
-                        <input type="password" id="signupPassword" placeholder="Create a password">
+                    
+                    <div class="form-group">
+                        <label for="signupConfirmPassword">Confirm Password</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock input-icon"></i>
+                            <input type="password" id="signupConfirmPassword" name="password_confirmation" placeholder="Confirm your password" required>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="signupConfirmPassword">Confirm Password</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-lock input-icon"></i>
-                        <input type="password" id="signupConfirmPassword" placeholder="Confirm your password">
+                    
+                    <div class="form-group">
+                        <label for="userType">I am a</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-graduation-cap input-icon"></i>
+                            <select id="userType" name="role" required>
+                                <option value="">Select your role</option>
+                                <option value="student">Student</option>
+                                <option value="teacher">Teacher</option>
+                                <option value="parent">Parent</option>
+                                <option value="lifelong_learner">Lifelong Learner</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="userType">I am a</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-graduation-cap input-icon"></i>
-                        <select id="userType">
-                            <option value="">Select your role</option>
-                            <option value="student">Student</option>
-                            <option value="teacher">Teacher</option>
-                            <option value="parent">Parent</option>
-                            <option value="lifelong_learner">Lifelong Learner</option>
-                        </select>
+                    
+                    <button type="submit" class="btn btn-primary">Create Account</button>
+                    
+                    <div class="divider"><span>Or sign up with</span></div>
+                    
+                    <div class="social-auth">
+                        <button type="button" class="btn btn-social">
+                            <i class="fab fa-google"></i>
+                            Google
+                        </button>
+                        <button type="button" class="btn btn-social">
+                            <i class="fab fa-apple"></i>
+                            Apple
+                        </button>
                     </div>
-                </div>
-                
-                <button class="btn btn-primary">Create Account</button>
-                
-                <div class="divider"><span>Or sign up with</span></div>
-                
-                <div class="social-auth">
-                    <button class="btn btn-social">
-                        <i class="fab fa-google"></i>
-                        Google
+                    
+                    <button type="button" class="btn btn-face-auth" id="faceSignupBtn">
+                        <i class="fas fa-face-recognition"></i>
+                        Facial Recognition
                     </button>
-                    <button class="btn btn-social">
-                        <i class="fab fa-apple"></i>
-                        Apple
-                    </button>
-                </div>
-                
-                <button class="btn btn-face-auth" id="faceSignupBtn">
-                    <i class="fas fa-face-recognition"></i>
-                    Facial Recognition
-                </button>
-                
-                <p class="terms">By creating an account, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.</p>
+                    
+                    <p class="terms">By creating an account, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.</p>
+                </form>
             </div>
         </div>
     </div>
- <script src= {{ asset('js/auth.js') }}></script>
+    <script src="{{ asset('js/auth.js') }}"></script>
 </body>
 </html>

@@ -1,3 +1,4 @@
+
         * {
             margin: 0;
             padding: 0;
@@ -94,6 +95,8 @@
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2),
                         0 0 0 1px rgba(57, 183, 255, 0.05),
                         0 0 30px rgba(57, 183, 255, 0.1);
+            max-height: 90vh;
+            overflow-y: auto;
         }
         
         .auth-tabs {
@@ -155,7 +158,7 @@
             position: relative;
         }
         
-        input {
+        input, select {
             width: 100%;
             padding: 16px 16px 16px 48px;
             background: rgba(15, 30, 45, 0.6);
@@ -166,7 +169,7 @@
             transition: all 0.3s ease;
         }
         
-        input:focus {
+        input:focus, select:focus {
             outline: none;
             border-color: rgba(57, 183, 255, 0.4);
             box-shadow: 0 0 0 3px rgba(57, 183, 255, 0.1);
@@ -178,6 +181,53 @@
             top: 50%;
             transform: translateY(-50%);
             color: rgba(57, 183, 255, 0.6);
+        }
+        
+        .profile-picture-upload {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .profile-preview {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: rgba(15, 30, 45, 0.6);
+            border: 2px dashed rgba(57, 183, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            overflow: hidden;
+        }
+        
+        .profile-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+        
+        .profile-preview i {
+            font-size: 24px;
+            color: rgba(57, 183, 255, 0.5);
+        }
+        
+        .upload-text {
+            flex: 1;
+        }
+        
+        .upload-text p {
+            font-size: 0.9rem;
+            color: #a4d8e8;
+            margin-bottom: 5px;
+        }
+        
+        .upload-text span {
+            font-size: 0.8rem;
+            color: rgba(57, 183, 255, 0.7);
         }
         
         .forgot-password {
@@ -235,6 +285,28 @@
             z-index: 1;
         }
         
+        .social-auth {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .btn-social {
+            background: rgba(57, 183, 255, 0.1);
+            color: #dffbff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            border: 1px solid rgba(57, 183, 255, 0.2);
+            padding: 12px;
+        }
+        
+        .btn-social:hover {
+            background: rgba(57, 183, 255, 0.15);
+        }
+        
         .btn-face-auth {
             background: rgba(57, 183, 255, 0.1);
             color: #dffbff;
@@ -280,6 +352,10 @@
             h1 {
                 font-size: 2.2rem;
             }
+            
+            .social-auth {
+                grid-template-columns: 1fr;
+            }
         }
         
         .particles {
@@ -316,4 +392,77 @@
                 opacity: 0;
             }
         }
-   
+        
+        .facial-recognition-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 25, 41, 0.95);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .facial-modal-content {
+            background: rgba(20, 40, 60, 0.8);
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            border: 1px solid rgba(57, 183, 255, 0.2);
+        }
+        
+        .face-scan-area {
+            width: 200px;
+            height: 200px;
+            border: 3px solid rgba(57, 183, 255, 0.3);
+            border-radius: 50%;
+            margin: 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .face-scan-area video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+        
+        .scanning-animation {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(transparent, transparent, transparent, #2dc2ff);
+            animation: scanning 2s linear infinite;
+        }
+        
+        @keyframes scanning {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(57, 183, 255, 0.1);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 1px solid rgba(57, 183, 255, 0.2);
+        }
+ 

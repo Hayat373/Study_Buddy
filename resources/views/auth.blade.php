@@ -6,10 +6,31 @@
     <title>Study Buddy - Login/Signup</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ asset('css/auth.css') }}">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
 </head>
 <body>
     <div class="particles" id="particles"></div>
+    
+    <!-- Facial Recognition Modal -->
+    <div class="facial-recognition-modal" id="faceModal">
+        <div class="facial-modal-content">
+            <div class="close-modal" id="closeModal">
+                <i class="fas fa-times"></i>
+            </div>
+            <h2>Facial Recognition</h2>
+            <p>Look directly into the camera to authenticate</p>
+            
+            <div class="face-scan-area">
+                <div class="scanning-animation"></div>
+                <video id="videoElement" autoplay playsinline></video>
+            </div>
+            
+            <p class="scan-status">Initializing camera...</p>
+            
+            <button class="btn btn-primary" style="margin-top: 20px;">
+                Complete Verification
+            </button>
+        </div>
+    </div>
     
     <div class="container">
         <div class="hero-content">
@@ -22,7 +43,7 @@
             
             <h1>Unlock Your Potential:<br>The Future of Learning is Here</h1>
             
-            <p class="subtitle">Immersive volumetric content, quizzes, group study -- and an AI-powered study buddy to help you level up.</p>
+            <p class="subtitle">Immersive volumetric content, quizzes, group study — and an AI-powered study buddy to help you level up.</p>
             
             <div class="features">
                 <div class="feature">
@@ -31,7 +52,7 @@
                 </div>
                 <div class="feature">
                     <i class="fas fa-microphone"></i>
-                    <span>Speak answers -- instant scoring and feedback</span>
+                    <span>Speak answers — instant scoring and feedback</span>
                 </div>
                 <div class="feature">
                     <i class="fas fa-users"></i>
@@ -49,10 +70,10 @@
             
             <div class="auth-form active" id="loginForm">
                 <div class="form-group">
-                    <label for="loginEmail">Email</label>
+                    <label for="loginEmail">Email or Username</label>
                     <div class="input-wrapper">
-                        <i class="fas fa-envelope input-icon"></i>
-                        <input type="email" id="loginEmail" placeholder="Enter your email">
+                        <i class="fas fa-user input-icon"></i>
+                        <input type="text" id="loginEmail" placeholder="Enter your email or username">
                     </div>
                 </div>
                 
@@ -70,7 +91,18 @@
                 
                 <div class="divider"><span>Or continue with</span></div>
                 
-                <button class="btn btn-face-auth">
+                <div class="social-auth">
+                    <button class="btn btn-social">
+                        <i class="fab fa-google"></i>
+                        Google
+                    </button>
+                    <button class="btn btn-social">
+                        <i class="fab fa-apple"></i>
+                        Apple
+                    </button>
+                </div>
+                
+                <button class="btn btn-face-auth" id="faceLoginBtn">
                     <i class="fas fa-face-recognition"></i>
                     Facial Recognition
                 </button>
@@ -79,11 +111,22 @@
             </div>
             
             <div class="auth-form" id="signupForm">
+                <div class="profile-picture-upload">
+                    <div class="profile-preview" id="profilePreview">
+                        <i class="fas fa-user-plus"></i>
+                        <img id="profileImage" src="" alt="Profile Preview">
+                    </div>
+                    <div class="upload-text">
+                        <p>Profile Picture</p>
+                        <span>Click to upload a photo (optional)</span>
+                    </div>
+                </div>
+                
                 <div class="form-group">
-                    <label for="signupName">Full Name</label>
+                    <label for="signupUsername">Username</label>
                     <div class="input-wrapper">
                         <i class="fas fa-user input-icon"></i>
-                        <input type="text" id="signupName" placeholder="Enter your full name">
+                        <input type="text" id="signupUsername" placeholder="Choose a username">
                     </div>
                 </div>
                 
@@ -103,11 +146,44 @@
                     </div>
                 </div>
                 
+                <div class="form-group">
+                    <label for="signupConfirmPassword">Confirm Password</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" id="signupConfirmPassword" placeholder="Confirm your password">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="userType">I am a</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-graduation-cap input-icon"></i>
+                        <select id="userType">
+                            <option value="">Select your role</option>
+                            <option value="student">Student</option>
+                            <option value="teacher">Teacher</option>
+                            <option value="parent">Parent</option>
+                            <option value="lifelong_learner">Lifelong Learner</option>
+                        </select>
+                    </div>
+                </div>
+                
                 <button class="btn btn-primary">Create Account</button>
                 
                 <div class="divider"><span>Or sign up with</span></div>
                 
-                <button class="btn btn-face-auth">
+                <div class="social-auth">
+                    <button class="btn btn-social">
+                        <i class="fab fa-google"></i>
+                        Google
+                    </button>
+                    <button class="btn btn-social">
+                        <i class="fab fa-apple"></i>
+                        Apple
+                    </button>
+                </div>
+                
+                <button class="btn btn-face-auth" id="faceSignupBtn">
                     <i class="fas fa-face-recognition"></i>
                     Facial Recognition
                 </button>
@@ -116,7 +192,6 @@
             </div>
         </div>
     </div>
-
-    <script src="{{ asset('js/auth.js') }}"></script>
+ <script src= {{ asset('js/auth.js') }}></script>
 </body>
 </html>

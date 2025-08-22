@@ -51,5 +51,70 @@
             }
         }
         
+        // Profile picture upload functionality
+        const profilePreview = document.getElementById('profilePreview');
+        const profileImage = document.getElementById('profileImage');
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = 'image/*';
+        fileInput.style.display = 'none';
+        
+        profilePreview.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(event) {
+                    profileImage.src = event.target.result;
+                    profileImage.style.display = 'block';
+                    profilePreview.querySelector('i').style.display = 'none';
+                }
+                
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+        
+        // Facial recognition modal
+        const faceModal = document.getElementById('faceModal');
+        const faceLoginBtn = document.getElementById('faceLoginBtn');
+        const faceSignupBtn = document.getElementById('faceSignupBtn');
+        const closeModalBtn = document.getElementById('closeModal');
+        const videoElement = document.getElementById('videoElement');
+        
+        function openFaceModal() {
+            faceModal.style.display = 'flex';
+            // In a real app, you would access the camera here
+            // simulateCameraAccess();
+        }
+        
+        function closeFaceModal() {
+            faceModal.style.display = 'none';
+            // In a real app, you would stop the camera here
+        }
+        
+        faceLoginBtn.addEventListener('click', openFaceModal);
+        faceSignupBtn.addEventListener('click', openFaceModal);
+        closeModalBtn.addEventListener('click', closeFaceModal);
+        
+        // Simulate camera access (in a real app, you would use navigator.mediaDevices.getUserMedia)
+        function simulateCameraAccess() {
+            // This is just a simulation - in a real app, you would access the actual camera
+            const scanStatus = document.querySelector('.scan-status');
+            scanStatus.textContent = "Camera accessed. Please look straight into the camera.";
+            
+            // Simulate face detection
+            setTimeout(() => {
+                scanStatus.textContent = "Face detected. Scanning...";
+            }, 1500);
+            
+            setTimeout(() => {
+                scanStatus.textContent = "Verification complete!";
+                scanStatus.style.color = "#78f7d1";
+            }, 3000);
+        }
+        
         createParticles();
   

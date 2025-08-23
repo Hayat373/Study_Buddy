@@ -110,4 +110,45 @@ class AuthController extends Controller
     return response()->json(['message' => 'Face not recognized'], 401);
 }
 
+    private function compareFaceDescriptors($descriptor1, $descriptor2) {
+        // Implement your comparison logic here
+        // This is a placeholder function
+        return false; // Change this to actual comparison result
+    }
+
+    public function verifyFace(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'username' => 'required|string',
+            'face_data' => 'required|array', // Assuming face_data is sent as an array of numbers
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $user = User::where('username', $request->username)->first();
+
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        // Here you would implement the actual face verification logic
+        // This is a placeholder for demonstration purposes
+        $isFaceMatch = $this->mockFaceVerification($user->face_data, $request->face_data);
+
+        if ($isFaceMatch) {
+            return response()->json(['message' => 'Face verification successful'], 200);
+        } else {
+            return response()->json(['message' => 'Face verification failed'], 401);
+        }
+    }
+
+    private function mockFaceVerification($storedFaceData, $inputFaceData)
+    {
+        // This is a mock function. Replace with actual face verification logic.
+        return $storedFaceData === $inputFaceData;
+    }
+    
+
 }

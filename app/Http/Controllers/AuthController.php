@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Laravel\Socialite\Facades\Socialite;
 
 
 class AuthController extends Controller
@@ -61,4 +62,31 @@ class AuthController extends Controller
 
         return response()->json(['message' => 'Login successful', 'user' => $user], 200);
     }
+
+    
+
+public function redirectToGoogle()
+{
+    return Socialite::driver('google')->redirect();
+}
+
+public function handleGoogleCallback()
+{
+    $user = Socialite::driver('google')->user();
+
+    // Find or create the user
+    $existingUser = User::where('email', $user->getEmail())->first();
+    if ($existingUser) {
+        auth()->login($existingUser);
+    } else {
+        $newUser = User::create([
+            'username' => $user->getName(),
+            'email' => $user->getEmail(),
+            'password' => Hash::make(Str::random(16)), // Random password
+        ]);
+        auth()->login($newUser);
+    }
+
+    return redirect('/index'); // Redirect to your desired route
+}
 }

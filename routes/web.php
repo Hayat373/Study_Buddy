@@ -20,4 +20,7 @@ Route::get('/auth', function () {
     return view('auth');
 })->name('auth');
 
+Route::get('login/google', [AuthController::class, 'redirectToGoogle']);
+Route::get('login/google/callback', [AuthController::class, 'handleGoogleCallback']);
+
 require __DIR__.'/auth.php';

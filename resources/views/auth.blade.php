@@ -92,8 +92,8 @@
                     <div class="divider"><span>Or continue with</span></div>
                     
                     <div class="social-auth">
-                        <button type="button" class="btn btn-social">
-                            <i class="fab fa-google"></i>
+                        <button type="button" class="btn btn-social" id="googleLoginBtn" onclick="window.location.href='/login/google'">
+                             <i class="fab fa-google"></i>
                             Google
                         </button>
                         <button type="button" class="btn btn-social">
@@ -177,10 +177,10 @@
                     <div class="divider"><span>Or sign up with</span></div>
                     
                     <div class="social-auth">
-                        <button type="button" class="btn btn-social">
-                            <i class="fab fa-google"></i>
-                            Google
-                        </button>
+                       <button type="button" class="btn btn-social" id="googleLoginBtn" onclick="window.location.href='/login/google'">
+                             <i class="fab fa-google"></i>
+                                  Google
+                                </button>
                         <button type="button" class="btn btn-social">
                             <i class="fab fa-apple"></i>
                             Apple

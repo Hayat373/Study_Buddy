@@ -116,4 +116,57 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     createParticles();
+
+    // auth.js
+document.getElementById('faceLoginBtn').addEventListener('click', function() {
+    const faceModal = document.getElementById('faceModal');
+    faceModal.style.display = 'flex'; // Show modal
+
+    const video = document.getElementById('videoElement');
+    const constraints = {
+        video: { facingMode: 'user' } // Use the front camera
+    };
+
+    navigator.mediaDevices.getUserMedia(constraints)
+        .then(function(stream) {
+            video.srcObject = stream;
+        })
+        .catch(function(error) {
+            console.error("Error accessing the camera: ", error);
+        });
+});
+
+// Close the modal and stop the video stream
+document.getElementById('closeModal').addEventListener('click', function() {
+    const faceModal = document.getElementById('faceModal');
+    const video = document.getElementById('videoElement');
+    
+    faceModal.style.display = 'none'; // Hide modal
+    video.srcObject.getTracks().forEach(track => track.stop()); // Stop the video stream
+});
+
+
+async function loadModels() {
+    await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
+    await faceapi.nets.faceLandmark68Net.loadFromUri('/models');
+    await faceapi.nets.faceRecognitionNet.loadFromUri('/models');
+}
+
+document.addEventListener('DOMContentLoaded', loadModels);
+
+document.querySelector('.btn.btn-primary').addEventListener('click', async function() {
+    const video = document.getElementById('videoElement');
+    const result = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
+        .withFaceLandmarks()
+        .withFaceDescriptor();
+
+    if (result) {
+        const faceDescriptor = result.descriptor;
+        // Send the faceDescriptor to your server for verification or registration
+        // For example, use fetch to send it via POST
+    } else {
+        alert("No face detected!");
+    }
+});
+
 });

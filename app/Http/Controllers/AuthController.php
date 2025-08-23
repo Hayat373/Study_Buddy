@@ -92,4 +92,22 @@ class AuthController extends Controller
             return redirect('/login')->withErrors('Google login failed.');
         }
     }
+
+    public function recognizeFace(Request $request) {
+    $faceDescriptor = $request->input('faceDescriptor');
+
+    // Compare with stored descriptors (this requires facial descriptors to be stored)
+    $users = User::all(); // Retrieve all users from the database
+    foreach ($users as $user) {
+        // Implement your logic to compare descriptors
+        // You might use a library or a custom function
+        if (compareFaceDescriptors($user->faceDescriptor, $faceDescriptor)) {
+            // Successful recognition
+            return response()->json(['message' => 'Face recognized, login successful'], 200);
+        }
+    }
+
+    return response()->json(['message' => 'Face not recognized'], 401);
+}
+
 }

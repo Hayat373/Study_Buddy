@@ -190,5 +190,6 @@
         </div>
     </div>
     <script src="{{ asset('js/auth.js') }}"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.min.js"></script>
 </body>
 </html>

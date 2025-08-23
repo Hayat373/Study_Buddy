@@ -169,4 +169,80 @@ document.querySelector('.btn.btn-primary').addEventListener('click', async funct
     }
 });
 
+
+// Load models when the document is ready
+document.addEventListener('DOMContentLoaded', async function () {
+    await loadModels(); // Load face-api.js models
+});
+
+// Handle facial recognition during signup
+document.getElementById('faceSignupBtn').addEventListener('click', function() {
+    openFaceModal();
+});
+
+document.querySelector('.btn.btn-primary').addEventListener('click', async function() {
+    const video = document.getElementById('videoElement');
+    const result = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
+        .withFaceLandmarks()
+        .withFaceDescriptor();
+
+    if (result) {
+        const faceDescriptor = result.descriptor;
+
+        // Send the face descriptor to your server for registration
+        fetch('/api/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ faceDescriptor, /* other user data */ })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            // Handle success (e.g., redirect or show message)
+        })
+        .catch((error) => {
+            console.error("Error:", error);
+        });
+    } else {
+        alert("No face detected!");
+    }
+});
+
+// Handle facial recognition during login
+document.getElementById('faceLoginBtn').addEventListener('click', function() {
+    openFaceModal();
+});
+
+document.querySelector('.btn.btn-primary').addEventListener('click', async function() {
+    const video = document.getElementById('videoElement');
+    const result = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
+        .withFaceLandmarks()
+        .withFaceDescriptor();
+
+    if (result) {
+        const faceDescriptor = result.descriptor;
+
+        // Send the face descriptor to your server for verification
+        fetch('/api/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ faceDescriptor })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            // Handle success (e.g., redirect to dashboard)
+        })
+        .catch((error) => {
+            console.error("Error:", error);
+        });
+    } else {
+        alert("No face detected!");
+    }
+});
+
 });

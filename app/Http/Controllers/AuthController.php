@@ -19,6 +19,7 @@ class AuthController extends Controller
             'password' => 'required|string|min:8|confirmed',
             'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'role' => 'required|in:student,teacher,parent,lifelong_learner',
+            'faceDescriptor' => 'required|json',
         ]);
 
         if ($validator->fails()) {
@@ -35,6 +36,7 @@ class AuthController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'profile_picture' => $profilepicturepath,
+             $user->faceDescriptor = json_encode($request->faceDescriptor);
             'role' => $request->role,
         ]);
 
@@ -149,6 +151,6 @@ class AuthController extends Controller
         // This is a mock function. Replace with actual face verification logic.
         return $storedFaceData === $inputFaceData;
     }
-    
+
 
 }

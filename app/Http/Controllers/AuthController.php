@@ -7,11 +7,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Socialite\Facades\Socialite;
-
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
-    //
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -19,7 +18,7 @@ class AuthController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
             'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'role' => 'required|in:student,teacher,parent,lifelong learner',
+            'role' => 'required|in:student,teacher,parent,lifelong_learner',
         ]);
 
         if ($validator->fails()) {
@@ -41,7 +40,9 @@ class AuthController extends Controller
 
         return response()->json(['message' => 'User registered successfully', 'user' => $user], 201);
     }
-    public function login(Request $request){
+
+    public function login(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'username' => 'required|string',
             'password' => 'required|string',
@@ -57,36 +58,38 @@ class AuthController extends Controller
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
-        // Here you can generate a token or session for the user
-        // For simplicity, we'll just return the user data
-
         return response()->json(['message' => 'Login successful', 'user' => $user], 200);
     }
 
-    
-
-public function redirectToGoogle()
-{
-    return Socialite::driver('google')->redirect();
-}
-
-public function handleGoogleCallback()
-{
-    $user = Socialite::driver('google')->user();
-
-    // Find or create the user
-    $existingUser = User::where('email', $user->getEmail())->first();
-    if ($existingUser) {
-        auth()->login($existingUser);
-    } else {
-        $newUser = User::create([
-            'username' => $user->getName(),
-            'email' => $user->getEmail(),
-            'password' => Hash::make(Str::random(16)), // Random password
-        ]);
-        auth()->login($newUser);
+    public function redirectToGoogle()
+    {
+        return Socialite::driver('google')->redirect();
     }
 
-    return redirect('/index'); // Redirect to your desired route
-}
+    public function handleGoogleCallback()
+    {
+        try {
+            $user = Socialite::driver('google')->user();
+
+            // Find or create the user
+            $existingUser = User::where('email', $user->getEmail())->first();
+            if ($existingUser) {
+                auth()->login($existingUser);
+            } else {
+                $newUser = User::create([
+                    'username' => $user->getName(),
+                    'email' => $user->getEmail(),
+                    'password' => Hash::make(Str::random(16)), // Optionally set a default password or manage it differently
+                    // You may want to add a profile picture if available
+                    // 'profile_picture' => $user->getAvatar(),
+                ]);
+                auth()->login($newUser);
+            }
+
+            return redirect('/home'); // Adjust this route as needed
+        } catch (\Exception $e) {
+            // Handle exception, e.g., log error, redirect with error message
+            return redirect('/login')->withErrors('Google login failed.');
+        }
+    }
 }

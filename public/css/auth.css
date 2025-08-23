@@ -278,22 +278,26 @@
         }
         
         .social-auth {
-            display: grid;
+            
             grid-template-columns: 1fr 1fr;
             gap: 12px;
             margin-bottom: 20px;
+            width:100%;
         }
         
         .btn-social {
-            background: rgba(57, 183, 255, 0.1);
-            color: #dffbff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            border: 1px solid rgba(57, 183, 255, 0.2);
-            padding: 12px;
-        }
+    background: rgba(57, 183, 255, 0.1);
+    color: #dffbff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border: 1px solid rgba(57, 183, 255, 0.2);
+    padding: 12px;
+    width: 100%; /* Ensure full width */
+    cursor: pointer;
+    transition: background 0.3s;
+}
         
         .btn-social:hover {
             background: rgba(57, 183, 255, 0.15);
@@ -457,4 +461,5 @@
             cursor: pointer;
             border: 1px solid rgba(57, 183, 255, 0.2);
         }
- 
+
+       

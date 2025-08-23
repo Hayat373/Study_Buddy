@@ -92,15 +92,11 @@
                     <div class="divider"><span>Or continue with</span></div>
                     
                     <div class="social-auth">
-                        <button type="button" class="btn btn-social" id="googleLoginBtn" onclick="window.location.href='/login/google'">
-                             <i class="fab fa-google"></i>
-                            Google
-                        </button>
-                        <button type="button" class="btn btn-social">
-                            <i class="fab fa-apple"></i>
-                            Apple
-                        </button>
-                    </div>
+                      <button type="button" class="btn btn-social" id="googleLoginBtn" onclick="window.location.href='/login/google'" style="width: 100%;">
+                     <i class="fab fa-google"></i>
+                        Google
+                     </button>
+                  </div>
                     
                     <button type="button" class="btn btn-face-auth" id="faceLoginBtn">
                         <i class="fas fa-face-recognition"></i>
@@ -176,16 +172,12 @@
                     
                     <div class="divider"><span>Or sign up with</span></div>
                     
-                    <div class="social-auth">
-                       <button type="button" class="btn btn-social" id="googleLoginBtn" onclick="window.location.href='/login/google'">
-                             <i class="fab fa-google"></i>
-                                  Google
-                                </button>
-                        <button type="button" class="btn btn-social">
-                            <i class="fab fa-apple"></i>
-                            Apple
-                        </button>
-                    </div>
+                  <div class="social-auth">
+                     <button type="button" class="btn btn-social" id="googleLoginBtn" onclick="window.location.href='/login/google'" style="width: 100%;">
+                     <i class="fab fa-google"></i>
+                     Google
+                     </button>
+                </div>  
                     
                     <button type="button" class="btn btn-face-auth" id="faceSignupBtn">
                         <i class="fas fa-face-recognition"></i>

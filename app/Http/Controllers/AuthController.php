@@ -161,4 +161,74 @@ class AuthController extends Controller
     return response()->json(['message' => 'User information updated successfully'], 200);
 }
 
+
+ public function registerFace(Request $request)
+    {
+        $request->validate([
+            'faceDescriptor' => 'required|array',
+            'username' => 'required|string|max:255|unique:users',
+            'email' => 'required|string|email|max:255|unique:users',
+            'role' => 'required|string',
+        ]);
+        
+        // Create user with facial data
+        $user = User::create([
+            'username' => $request->username,
+            'email' => $request->email,
+            'role' => $request->role,
+            'password' => Hash::make(Str::random(24)), // Random password for facial login users
+            'facial_data' => json_encode($request->faceDescriptor),
+        ]);
+        
+        Auth::login($user);
+        
+        return response()->json([
+            'success' => true,
+            'redirect' => route('dashboard')
+        ]);
+    }
+    
+    public function loginFace(Request $request)
+    {
+        $request->validate([
+            'faceDescriptor' => 'required|array',
+        ]);
+        
+        $users = User::whereNotNull('facial_data')->get();
+        $inputDescriptor = $request->faceDescriptor;
+        
+        foreach ($users as $user) {
+            $storedDescriptor = json_decode($user->facial_data, true);
+            
+            // Calculate Euclidean distance between descriptors
+            $distance = $this->calculateDescriptorDistance($storedDescriptor, $inputDescriptor);
+            
+            // Threshold for face recognition match (adjust as needed)
+            if ($distance < 0.6) {
+                Auth::login($user);
+                return response()->json([
+                    'success' => true,
+                    'redirect' => route('dashboard')
+                ]);
+            }
+        }
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'No matching face found'
+        ], 401);
+    }
+    
+    private function calculateDescriptorDistance($descriptor1, $descriptor2)
+    {
+        // Calculate Euclidean distance between two face descriptors
+        $sum = 0;
+        for ($i = 0; $i < count($descriptor1); $i++) {
+            $diff = $descriptor1[$i] - $descriptor2[$i];
+            $sum += $diff * $diff;
+        }
+        return sqrt($sum);
+    }
+    
+
 }

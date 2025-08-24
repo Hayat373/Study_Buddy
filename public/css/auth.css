@@ -463,3 +463,65 @@
         }
 
        
+
+        /* Password reset styles */
+.auth-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.auth-header h2 {
+    margin-bottom: 10px;
+    color: #dffbff;
+    font-size: 1.8rem;
+}
+
+.auth-header p {
+    color: #a4d8e8;
+}
+
+.auth-links {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.auth-links a {
+    color: #2dc2ff;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.auth-links a:hover {
+    text-decoration: underline;
+}
+
+/* Facial recognition modal adjustments */
+.facial-modal-content .btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Ensure the hero content is properly styled in password reset pages */
+.hero-content .logo {
+    margin-bottom: 20px;
+    font-size: 28px;
+    font-weight: 700;
+    color: #78f7d1;
+    text-align: center;
+}
+
+.hero-content h1 {
+    font-size: 2rem;
+    margin-bottom: 15px;
+    text-align: center;
+    background: linear-gradient(135deg, #dffbff 0%, #78f7d1 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.hero-content .subtitle {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #a4d8e8;
+}
+

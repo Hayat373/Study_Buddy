@@ -274,4 +274,254 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+// Facial recognition variables
+    let faceDetectionInterval;
+    let isProcessing = false;
+    let modelsLoaded = false;
+    
+    // Load face-api.js models
+    async function loadModels() {
+        try {
+            // Load the models from the correct path
+            await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
+            await faceapi.nets.faceLandmark68Net.loadFromUri('/models');
+            await faceapi.nets.faceRecognitionNet.loadFromUri('/models');
+            await faceapi.nets.faceExpressionNet.loadFromUri('/models');
+            
+            modelsLoaded = true;
+            console.log('Face API models loaded successfully');
+        } catch (error) {
+            console.error('Error loading face models:', error);
+        }
+    }
+    
+    // Initialize facial recognition
+    async function initFaceRecognition() {
+        if (!modelsLoaded) {
+            await loadModels();
+        }
+        
+        const video = document.getElementById('videoElement');
+        const scanStatus = document.querySelector('.scan-status');
+        
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { 
+                    facingMode: 'user',
+                    width: 640,
+                    height: 480 
+                } 
+            });
+            video.srcObject = stream;
+            
+            // Start face detection
+            startFaceDetection(video, scanStatus);
+        } catch (error) {
+            console.error('Error accessing camera:', error);
+            scanStatus.textContent = 'Camera access denied. Please allow camera access to use facial recognition.';
+            scanStatus.style.color = '#ff6b6b';
+        }
+    }
+    
+    // Start face detection
+    function startFaceDetection(video, scanStatus) {
+        clearInterval(faceDetectionInterval);
+        
+        faceDetectionInterval = setInterval(async () => {
+            if (isProcessing) return;
+            
+            isProcessing = true;
+            try {
+                const detections = await faceapi.detectSingleFace(
+                    video, 
+                    new faceapi.TinyFaceDetectorOptions()
+                ).withFaceLandmarks().withFaceDescriptor();
+                
+                if (detections) {
+                    scanStatus.textContent = 'Face detected. Please hold still...';
+                    scanStatus.style.color = '#78f7d1';
+                    
+                    // Enable the verification button
+                    document.querySelector('.facial-modal-content .btn').disabled = false;
+                } else {
+                    scanStatus.textContent = 'Please position your face in the frame';
+                    scanStatus.style.color = '#ffc107';
+                    
+                    // Disable the verification button
+                    document.querySelector('.facial-modal-content .btn').disabled = true;
+                }
+            } catch (error) {
+                console.error('Face detection error:', error);
+            }
+            isProcessing = false;
+        }, 1000);
+    }
+    
+    // Get face descriptor for registration or login
+    async function getFaceDescriptor() {
+        const video = document.getElementById('videoElement');
+        const scanStatus = document.querySelector('.scan-status');
+        
+        try {
+            scanStatus.textContent = 'Processing your face...';
+            
+            const result = await faceapi.detectSingleFace(
+                video, 
+                new faceapi.TinyFaceDetectorOptions()
+            ).withFaceLandmarks().withFaceDescriptor();
+            
+            if (result) {
+                return Array.from(result.descriptor);
+            } else {
+                throw new Error('No face detected');
+            }
+        } catch (error) {
+            console.error('Error getting face descriptor:', error);
+            scanStatus.textContent = 'Error: ' + error.message;
+            scanStatus.style.color = '#ff6b6b';
+            return null;
+        }
+    }
+    
+    // Facial registration
+    async function registerWithFace() {
+        const faceDescriptor = await getFaceDescriptor();
+        
+        if (!faceDescriptor) return;
+        
+        // Get form data
+        const username = document.getElementById('signupUsername').value;
+        const email = document.getElementById('signupEmail').value;
+        const role = document.getElementById('userType').value;
+        
+        // Send to server
+        try {
+            const response = await fetch('/facial/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    faceDescriptor,
+                    username,
+                    email,
+                    role
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                window.location.href = data.redirect;
+            } else {
+                alert('Registration failed: ' + data.message);
+            }
+        } catch (error) {
+            console.error('Registration error:', error);
+            alert('Registration failed. Please try again.');
+        }
+    }
+    
+    // Facial login
+    async function loginWithFace() {
+        const faceDescriptor = await getFaceDescriptor();
+        
+        if (!faceDescriptor) return;
+        
+        // Send to server
+        try {
+            const response = await fetch('/facial/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({ faceDescriptor })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                window.location.href = data.redirect;
+            } else {
+                alert('Login failed: ' + data.message);
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            alert('Login failed. Please try again.');
+        }
+    }
+    
+    // Open facial recognition modal
+    function openFaceModal(mode) {
+        const faceModal = document.getElementById('faceModal');
+        const verifyBtn = document.querySelector('.facial-modal-content .btn');
+        const scanStatus = document.querySelector('.scan-status');
+        
+        // Set up the verification button based on mode (login or register)
+        verifyBtn.onclick = mode === 'register' ? registerWithFace : loginWithFace;
+        verifyBtn.disabled = true;
+        
+        scanStatus.textContent = 'Initializing camera...';
+        scanStatus.style.color = '#dffbff';
+        
+        faceModal.style.display = 'flex';
+        initFaceRecognition();
+    }
+    
+    // Close facial recognition modal
+    function closeFaceModal() {
+        const faceModal = document.getElementById('faceModal');
+        const video = document.getElementById('videoElement');
+        
+        clearInterval(faceDetectionInterval);
+        
+        if (video.srcObject) {
+            video.srcObject.getTracks().forEach(track => track.stop());
+        }
+        
+        faceModal.style.display = 'none';
+    }
+    
+    // Set up event listeners
+    document.getElementById('faceLoginBtn').addEventListener('click', () => openFaceModal('login'));
+    document.getElementById('faceSignupBtn').addEventListener('click', () => openFaceModal('register'));
+    document.getElementById('closeModal').addEventListener('click', closeFaceModal);
+    
+    // Password reset functionality
+    document.querySelector('.forgot-password').addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        const email = document.getElementById('loginEmail').value;
+        
+        if (!email) {
+            alert('Please enter your email address first');
+            return;
+        }
+        
+        // Show a prompt for confirmation
+        if (confirm(`Send password reset instructions to ${email}?`)) {
+            fetch('/forgot-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({ email })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message || 'Password reset link sent to your email');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            });
+        }
+    });
+    
+    // Load models when page loads
+    loadModels();
+
 });

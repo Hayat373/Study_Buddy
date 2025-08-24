@@ -1,39 +1,56 @@
-<x-guest-layout>
-    <form method="POST" action="{{ route('password.store') }}">
-        @csrf
+@extends('layout')
 
-        <!-- Password Reset Token -->
-        <input type="hidden" name="token" value="{{ $request->route('token') }}">
+@section('title', 'Reset Password - Study Buddy')
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email', $request->email)" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+@section('auth-content')
+    <div class="hero-content">
+        <div class="logo">
+            <span>Study Buddy</span>
         </div>
-
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-            <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="new-password" />
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+        
+        <h1>Set New Password</h1>
+        
+        <p class="subtitle">Enter your new password below.</p>
+    </div>
+    
+    <div class="auth-container">
+        <div class="auth-header">
+            <h2>Reset Password</h2>
         </div>
-
-        <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
-
-            <x-text-input id="password_confirmation" class="block mt-1 w-full"
-                                type="password"
-                                name="password_confirmation" required autocomplete="new-password" />
-
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-        </div>
-
-        <div class="flex items-center justify-end mt-4">
-            <x-primary-button>
-                {{ __('Reset Password') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout>
+        
+        <form method="POST" action="{{ route('password.update') }}">
+            @csrf
+            <input type="hidden" name="token" value="{{ $token }}">
+            
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-envelope input-icon"></i>
+                    <input type="email" id="email" name="email" value="{{ $email ?? old('email') }}" required autofocus placeholder="Enter your email">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">New Password</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-lock input-icon"></i>
+                    <input type="password" id="password" name="password" required placeholder="Enter new password">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="password-confirm">Confirm Password</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-lock input-icon"></i>
+                    <input type="password" id="password-confirm" name="password_confirmation" required placeholder="Confirm new password">
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Reset Password</button>
+            
+            <div class="auth-links">
+                <a href="{{ route('login') }}">Back to Login</a>
+            </div>
+        </form>
+    </div>
+@endsection

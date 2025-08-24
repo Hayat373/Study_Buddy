@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Socialite\Facades\Socialite;
@@ -36,25 +37,31 @@ class AuthController extends Controller
     return response()->json(['message' => 'User registered successfully', 'user' => $user], 201);
 }
 
-    public function login(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'username' => 'required|string',
-            'password' => 'required|string',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
-
-        $user = User::where('username', $request->username)->orWhere('email', $request->username)->first();
-
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json(['message' => 'Invalid credentials'], 401);
-        }
-
-        return response()->json(['message' => 'Login successful', 'user' => $user], 200);
+public function login(Request $request)
+{
+    \Log::info('Login attempt', $request->all());
+    
+    $credentials = $request->validate([
+        'username' => 'required|string',
+        'password' => 'required|string',
+    ]);
+    
+    $field = filter_var($credentials['username'], FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+    
+    \Log::info('Attempting login with field: ' . $field . ' = ' . $credentials['username']);
+    
+    if (Auth::attempt([$field => $credentials['username'], 'password' => $credentials['password']])) {
+        \Log::info('Login successful for user: ' . Auth::id());
+        $request->session()->regenerate();
+        return redirect()->intended('/dashboard');
     }
+    
+    \Log::warning('Login failed for: ' . $credentials['username']);
+    return back()->withErrors([
+        'username' => 'The provided credentials do not match our records.',
+    ])->onlyInput('username');
+}
+
 
     public function redirectToGoogle()
     {
@@ -229,6 +236,6 @@ class AuthController extends Controller
         }
         return sqrt($sum);
     }
-    
+
 
 }

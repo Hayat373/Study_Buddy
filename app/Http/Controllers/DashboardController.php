@@ -11,13 +11,19 @@ class DashboardController extends Controller
     {
         $this->middleware('auth');
     }
-    
+
     public function index()
     {
-        // Get the authenticated user
+        // Debug: check if user is authenticated
+        if (!Auth::check()) {
+            abort(403, 'User not authenticated');
+        }
+        
         $user = Auth::user();
         
-        // You can pass any data needed for the dashboard here
+        // Debug: check what user data we have
+        \Log::info('Dashboard accessed by user: ' . $user->id . ' - ' . $user->email);
+        
         return view('dashboard', compact('user'));
     }
 }

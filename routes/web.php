@@ -41,6 +41,16 @@ Route::get('login/google', [AuthController::class, 'redirectToGoogle']);
 Route::get('login/google/callback', [AuthController::class, 'handleGoogleCallback']);
 
 // Dashboard route (protected by auth middleware)
-Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard')->middleware('auth');
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->name('dashboard')
+    ->middleware('auth'); // Apply middleware here OR in controller
+// ================================================
+
+// ======== ADD THESE RESOURCE ROUTES ========
+Route::resource('flashcards', FlashcardController::class)->middleware('auth');
+Route::resource('groups', GroupController::class)->middleware('auth');
+Route::resource('quizzes', QuizController::class)->middleware('auth');
+Route::resource('chats', ChatController::class)->middleware('auth');
+// ===========================================
 
 require __DIR__.'/auth.php';

@@ -37,7 +37,7 @@
         
         <!-- Login Form -->
         <div class="auth-form active" id="loginForm">
-            <form id="loginForm" method="POST" action="/api/login">
+            <form id="loginForm" method="POST" action="{{ route('login') }}">
                 @csrf
                 <div class="form-group">
                     <label for="loginEmail">Email or Username</label>

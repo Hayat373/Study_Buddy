@@ -245,4 +245,33 @@ document.querySelector('.btn.btn-primary').addEventListener('click', async funct
     }
 });
 
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle forgot password click
+    document.querySelector('.forgot-password').addEventListener('click', function(event) {
+        event.preventDefault(); // Prevent default link behavior
+
+        const email = prompt('Please enter your registered email:'); // Prompt for email
+
+        if (email) {
+            // Send the email to your API endpoint
+            fetch('/password/email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({ email: email })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message); // Show success or error message
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.'); // Show error message
+            });
+        }
+    });
+});
+
 });

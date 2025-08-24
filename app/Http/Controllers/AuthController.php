@@ -12,36 +12,29 @@ use Illuminate\Support\Str;
 class AuthController extends Controller
 {
     public function register(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'username' => 'required|string|max:255|unique:users',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-            'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'role' => 'required|in:student,teacher,parent,lifelong_learner',
-            'faceDescriptor' => 'required|json',
-        ]);
+{
+    $validator = Validator::make($request->all(), [
+        'username' => 'required|string|max:255|unique:users',
+        'email' => 'required|string|email|max:255|unique:users',
+        'password' => 'required|string|min:8|confirmed',
+        'faceDescriptor' => 'required|json', // Add this line
+        'role' => 'required|in:student,teacher,parent,lifelong_learner',
+    ]);
 
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
-
-        $profilepicturepath = null;
-        if ($request->hasFile('profile_picture')) {
-            $profilepicturepath = $request->file('profile_picture')->store('profile_pictures', 'public');
-        }
-
-        $user = User::create([
-            'username' => $request->username,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'profile_picture' => $profilepicturepath,
-             $user->faceDescriptor = json_encode($request->faceDescriptor);
-            'role' => $request->role,
-        ]);
-
-        return response()->json(['message' => 'User registered successfully', 'user' => $user], 201);
+    if ($validator->fails()) {
+        return response()->json(['errors' => $validator->errors()], 422);
     }
+
+    $user = User::create([
+        'username' => $request->username,
+        'email' => $request->email,
+        'password' => Hash::make($request->password),
+        'faceDescriptor' => $request->faceDescriptor, // Store the face descriptor
+        'role' => $request->role,
+    ]);
+
+    return response()->json(['message' => 'User registered successfully', 'user' => $user], 201);
+}
 
     public function login(Request $request)
     {
@@ -95,17 +88,16 @@ class AuthController extends Controller
         }
     }
 
-    public function recognizeFace(Request $request) {
+   public function recognizeFace(Request $request) {
     $faceDescriptor = $request->input('faceDescriptor');
 
-    // Compare with stored descriptors (this requires facial descriptors to be stored)
-    $users = User::all(); // Retrieve all users from the database
+    // Retrieve users and compare descriptors
+    $users = User::all();
     foreach ($users as $user) {
-        // Implement your logic to compare descriptors
-        // You might use a library or a custom function
-        if (compareFaceDescriptors($user->faceDescriptor, $faceDescriptor)) {
+        if ($this->compareFaceDescriptors(json_decode($user->faceDescriptor), json_decode($faceDescriptor))) {
             // Successful recognition
-            return response()->json(['message' => 'Face recognized, login successful'], 200);
+            auth()->login($user); // Log the user in
+            return response()->json(['message' => 'Face recognized, login successful', 'user' => $user], 200);
         }
     }
 
@@ -146,11 +138,27 @@ class AuthController extends Controller
         }
     }
 
-    private function mockFaceVerification($storedFaceData, $inputFaceData)
-    {
-        // This is a mock function. Replace with actual face verification logic.
-        return $storedFaceData === $inputFaceData;
+    public function updateUser(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'email' => 'sometimes|nullable|string|email|max:255|unique:users,email,' . auth()->id(),
+        'password' => 'sometimes|nullable|string|min:8|confirmed',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json(['errors' => $validator->errors()], 422);
     }
 
+    $user = auth()->user();
+    if ($request->has('email')) {
+        $user->email = $request->email;
+    }
+    if ($request->has('password')) {
+        $user->password = Hash::make($request->password);
+    }
+    $user->save();
+
+    return response()->json(['message' => 'User information updated successfully'], 200);
+}
 
 }

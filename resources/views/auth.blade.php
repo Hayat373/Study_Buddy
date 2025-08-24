@@ -3,9 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Study Buddy - Login/Signup</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ asset('css/auth.css') }}">
+        <script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.min.js"></script>
+
 </head>
 <body>
     <div class="particles" id="particles"></div>
@@ -85,7 +88,7 @@
                         </div>
                     </div>
                     
-                    <a href="#" class="forgot-password">Forgot password?</a>
+                    <a  class="forgot-password">Forgot password?</a>
                     
                     <button type="submit" class="btn btn-primary">Login to Study Buddy</button>
                     
@@ -190,6 +193,5 @@
         </div>
     </div>
     <script src="{{ asset('js/auth.js') }}"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.min.js"></script>
 </body>
 </html>

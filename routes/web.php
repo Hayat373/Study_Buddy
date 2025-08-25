@@ -21,8 +21,7 @@ Route::get('/auth', function () {
 
 // ======== ADD THESE AUTHENTICATION ROUTES ========
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-Route::post('/login', [AuthController::class, 'login']); // ← THIS IS THE CRITICAL MISSING ROUTE
-Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
+
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // ================================================
@@ -41,10 +40,7 @@ Route::get('login/google', [AuthController::class, 'redirectToGoogle']);
 Route::get('login/google/callback', [AuthController::class, 'handleGoogleCallback']);
 
 // Dashboard route (protected by auth middleware)
-Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->name('dashboard')
-    ->middleware('auth'); // Apply middleware here OR in controller
-// ================================================
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard')->middleware('auth');// ================================================
 
 // ======== ADD THESE RESOURCE ROUTES ========
 Route::resource('flashcards', FlashcardController::class)->middleware('auth');
@@ -52,5 +48,7 @@ Route::resource('groups', GroupController::class)->middleware('auth');
 Route::resource('quizzes', QuizController::class)->middleware('auth');
 Route::resource('chats', ChatController::class)->middleware('auth');
 // ===========================================
+
+
 
 require __DIR__.'/auth.php';

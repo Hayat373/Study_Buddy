@@ -12,6 +12,8 @@ use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
+
+   
     public function register(Request $request)
 {
     $validator = Validator::make($request->all(), [
@@ -39,20 +41,25 @@ class AuthController extends Controller
 
 public function login(Request $request)
 {
-    \Log::info('Login attempt', $request->all());
+    \Log::info('Login attempt received', $request->all());
     
     $credentials = $request->validate([
         'username' => 'required|string',
         'password' => 'required|string',
     ]);
     
+    // Check if the input is an email or username
     $field = filter_var($credentials['username'], FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
     
-    \Log::info('Attempting login with field: ' . $field . ' = ' . $credentials['username']);
+    \Log::info("Attempting login with field: $field, value: " . $credentials['username']);
     
+    // Attempt to log in
     if (Auth::attempt([$field => $credentials['username'], 'password' => $credentials['password']])) {
-        \Log::info('Login successful for user: ' . Auth::id());
+        \Log::info('Login successful for user ID: ' . Auth::id());
         $request->session()->regenerate();
+        
+        \Log::info('Redirecting to dashboard');
+         \Log::info('User authenticated:', ['user_id' => Auth::id()]);
         return redirect()->intended('/dashboard');
     }
     

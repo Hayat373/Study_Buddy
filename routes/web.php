@@ -59,6 +59,8 @@ Route::get('/flashcards/{id}', [FlashcardController::class, 'show'])->name('flas
 Route::get('/flashcards/{id}/edit', [FlashcardController::class, 'edit'])->name('flashcards.edit');
 Route::put('/flashcards/{id}', [FlashcardController::class, 'update'])->name('flashcards.update');
 Route::delete('/flashcards/{id}', [FlashcardController::class, 'destroy'])->name('flashcards.destroy');
+Route::post('/flashcards/generate-ai', [FlashcardController::class, 'generateAI'])->name('flashcards.generate.ai');
+Route::post('/flashcards/{flashcard}/share', [FlashcardController::class, 'share'])->name('flashcards.share');
 
 // Quiz Routes
 Route::get('/quizzes', [QuizController::class, 'index'])->name('quizzes.index');

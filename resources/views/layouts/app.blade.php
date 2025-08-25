@@ -26,7 +26,7 @@
         <aside class="side-nav">
             <div class="nav-header">
                 <div class="logo">
-                    <i class="fas fa-graduation-cap"></i>
+                    
                     <span class="nav-text">Study Buddy</span>
                 </div>
                 <button class="nav-toggle" id="navToggle">

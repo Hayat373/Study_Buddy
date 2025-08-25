@@ -3,6 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\FlashcardSet;
+use App\Models\Flashcard;
+use App\Services\AIService; 
+use Illuminate\Support\Facades\Auth;
 
 class FlashcardController extends Controller
 {

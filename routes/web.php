@@ -130,9 +130,9 @@ Route::middleware(['auth'])->group(function () {
     });
     
     // Settings Routes
-    Route::get('/settings', function () {
-        return view('settings');
-    })->name('settings');
+Route::get('/settings', function () {
+    return view('settings');
+})->name('settings.index')->middleware('auth'); // ← Add ->name('settings.index')
 });
 
 // Fallback route for undefined routes

@@ -1,118 +1,133 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'Study Buddy')</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Styles -->
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
+    
+    @yield('styles')
 </head>
-<body>
+<body class="app-body">
+    <!-- App Container -->
     <div class="app-container">
-        <!-- Sidebar Navigation -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="sidebar-logo">
-                    <div class="sidebar-logo-icon">
-                        <i class="fas fa-graduation-cap"></i>
-                    </div>
-                    <span>Study Buddy</span>
+        <!-- Side Navigation -->
+        <aside class="side-nav">
+            <div class="nav-header">
+                <div class="logo">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span class="nav-text">Study Buddy</span>
                 </div>
+                <button class="nav-toggle" id="navToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
             </div>
             
-            <a href="{{ route('dashboard') }}" class="nav-item {{ Request::is('dashboard') ? 'active' : '' }}">
-                <i class="fas fa-home"></i>
-                <span>Dashboard</span>
-            </a>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="{{ route('dashboard') }}" class="nav-link active">
+                        <i class="fas fa-home"></i>
+                        <span class="nav-text">Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('flashcards.index') }}" class="nav-link">
+                        <i class="fas fa-layer-group"></i>
+                        <span class="nav-text">Flashcards</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('quizzes.index') }}" class="nav-link">
+                        <i class="fas fa-question-circle"></i>
+                        <span class="nav-text">Quizzes</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                  
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('chat.index') }}" class="nav-link">
+                        <i class="fas fa-comments"></i>
+                        <span class="nav-text">Chat</span>
+                        <span class="nav-badge">3</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('study-groups.index') }}" class="nav-link">
+                        <i class="fas fa-users"></i>
+                        <span class="nav-text">Study Groups</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('schedule.index') }}" class="nav-link">
+                        <i class="fas fa-calendar"></i>
+                        <span class="nav-text">Schedule</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('settings.index') }}" class="nav-link">
+                        <i class="fas fa-cog"></i>
+                        <span class="nav-text">Settings</span>
+                    </a>
+                </li>
+            </ul>
             
-            <a href="#" class="nav-item">
-                <i class="fas fa-layer-group"></i>
-                <span>Flashcards</span>
-            </a>
-            
-            <a href="#" class="nav-item">
-                <i class="fas fa-comments"></i>
-                <span>Group Chat</span>
-            </a>
-            
-            <a href="#" class="nav-item">
-                <i class="fas fa-question-circle"></i>
-                <span>Quizzes</span>
-            </a>
-            
-            <a href="#" class="nav-item">
-                <i class="fas fa-video"></i>
-                <span>Video Calls</span>
-            </a>
-            
-            <div class="nav-divider"></div>
-            
-            <a href="#" class="nav-item">
-                <i class="fas fa-user-friends"></i>
-                <span>Study Groups</span>
-            </a>
-            
-            <a href="#" class="nav-item">
-                <i class="fas fa-chart-line"></i>
-                <span>Progress</span>
-            </a>
-            
-            <a href="#" class="nav-item">
-                <i class="fas fa-cog"></i>
-                <span>Settings</span>
-            </a>
-            
-            <div class="nav-divider"></div>
-            
-            <form method="POST" action="{{ route('logout') }}" class="nav-item">
-                @csrf
-                <i class="fas fa-sign-out-alt"></i>
-                <span>Logout</span>
-                <button type="submit" style="display: none;"></button>
-            </form>
-        </aside>
-        
-        <!-- Main Content -->
-        <div class="main-content">
-            <!-- Header -->
-            <header class="app-header">
-                <div class="header-left">
-                    <button class="menu-toggle" style="display: none;">
-                        <i class="fas fa-bars"></i>
-                    </button>
+            <div class="nav-footer">
+                <div class="user-profile">
+                    <div class="user-avatar">
+                        {{ substr($user->username, 0, 1) }}
+                    </div>
+                    <div class="user-info">
+                        <span class="username">{{ $user->username }}</span>
+                        <span class="user-role">Student</span>
+                    </div>
                 </div>
-                
-                <div class="search-bar">
+                <a href="{{ route('logout') }}" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="main-header">
+                <div class="header-search">
                     <i class="fas fa-search"></i>
                     <input type="text" placeholder="Search flashcards, quizzes, groups...">
                 </div>
                 
-                <div class="user-menu">
-                    <div class="notification-btn">
+                <div class="header-actions">
+                    <button class="header-btn notification-btn">
                         <i class="fas fa-bell"></i>
-                    </div>
-                    <div class="user-profile">
-                        <span>{{ strtoupper(substr(Auth::user()->username, 0, 2)) }}</span>
-                    </div>
+                        <span class="notification-badge">3</span>
+                    </button>
+                    <button class="header-btn theme-toggle" id="themeToggle">
+                        <i class="fas fa-moon"></i>
+                    </button>
                 </div>
             </header>
-            
-            <!-- Content Area -->
-            <main class="content-area">
+
+            <!-- Dashboard Content -->
+            <div class="dashboard-content">
                 @yield('content')
-            </main>
-        </div>
+            </div>
+        </main>
     </div>
-    
-    <script src="{{ asset('js/app.js') }}"></script>
-    <script>
-        // Make logout form work when clicked
-        document.querySelector('form.nav-item').addEventListener('click', function(e) {
-            if (e.target.tagName !== 'BUTTON') {
-                this.querySelector('button').click();
-            }
-        });
-    </script>
+
+    <!-- Scripts -->
+    <script src="{{ asset('js/dashboard.js') }}"></script>
+    @yield('scripts')
 </body>
 </html>

@@ -51,4 +51,50 @@ Route::resource('chats', ChatController::class)->middleware('auth');
 
 
 
+// Flashcard Routes
+Route::get('/flashcards', [FlashcardController::class, 'index'])->name('flashcards.index');
+Route::get('/flashcards/create', [FlashcardController::class, 'create'])->name('flashcards.create');
+Route::post('/flashcards', [FlashcardController::class, 'store'])->name('flashcards.store');
+Route::get('/flashcards/{id}', [FlashcardController::class, 'show'])->name('flashcards.show');
+Route::get('/flashcards/{id}/edit', [FlashcardController::class, 'edit'])->name('flashcards.edit');
+Route::put('/flashcards/{id}', [FlashcardController::class, 'update'])->name('flashcards.update');
+Route::delete('/flashcards/{id}', [FlashcardController::class, 'destroy'])->name('flashcards.destroy');
+
+// Quiz Routes
+Route::get('/quizzes', [QuizController::class, 'index'])->name('quizzes.index');
+Route::get('/quizzes/create', [QuizController::class, 'create'])->name('quizzes.create');
+Route::post('/quizzes', [QuizController::class, 'store'])->name('quizzes.store');
+Route::get('/quizzes/{id}', [QuizController::class, 'show'])->name('quizzes.show');
+Route::get('/quizzes/{id}/edit', [QuizController::class, 'edit'])->name('quizzes.edit');
+Route::put('/quizzes/{id}', [QuizController::class, 'update'])->name('quizzes.update');
+Route::delete('/quizzes/{id}', [QuizController::class, 'destroy'])->name('quizzes.destroy');
+
+// Video Call Routes
+Route::get('/video-calls', [VideoCallController::class, 'index'])->name('video-calls');
+Route::get('/video-calls/{roomId}', [VideoCallController::class, 'join'])->name('video-calls.join');
+
+// Chat Routes
+Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
+Route::get('/chat/{groupId}', [ChatController::class, 'show'])->name('chat.show');
+
+// Study Group Routes
+Route::get('/study-groups', [StudyGroupController::class, 'index'])->name('study-groups.index');
+Route::get('/study-groups/create', [StudyGroupController::class, 'create'])->name('study-groups.create');
+Route::post('/study-groups', [StudyGroupController::class, 'store'])->name('study-groups.store');
+Route::get('/study-groups/{id}', [StudyGroupController::class, 'show'])->name('study-groups.show');
+Route::get('/study-groups/{id}/edit', [StudyGroupController::class, 'edit'])->name('study-groups.edit');
+Route::put('/study-groups/{id}', [StudyGroupController::class, 'update'])->name('study-groups.update');
+Route::delete('/study-groups/{id}', [StudyGroupController::class, 'destroy'])->name('study-groups.destroy');
+
+// Additional routes for schedule and settings
+Route::get('/schedule', function () {
+    return view('schedule');
+})->name('schedule.index');
+
+Route::get('/settings', function () {
+    return view('settings');
+})->name('settings.index');
+
+
+
 require __DIR__.'/auth.php';

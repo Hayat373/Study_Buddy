@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('flashcards', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('flashcard_set_id')->constrained()->onDelete('cascade');
+            $table->text('question');
+            $table->text('answer');
             $table->timestamps();
         });
     }

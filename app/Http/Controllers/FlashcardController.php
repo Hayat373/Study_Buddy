@@ -31,10 +31,18 @@ class FlashcardController extends Controller
         return view('flashcards.create');
     }
     
-    public function store(FlashcardRequest $request)
+    public function store(Request $request)
     {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'flashcards' => 'required|array|min:1',
+            'flashcards.*.question' => 'required|string',
+            'flashcards.*.answer' => 'required|string',
+        ]);
+        
         $set = FlashcardSet::create([
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(),
             'title' => $request->title,
             'description' => $request->description,
             'is_public' => $request->has('is_public'),
@@ -74,13 +82,21 @@ class FlashcardController extends Controller
         return view('flashcards.edit', compact('flashcardSet'));
     }
     
-    public function update(FlashcardRequest $request, $id)
+    public function update(Request $request, $id)
     {
         $flashcardSet = FlashcardSet::findOrFail($id);
         
-        if ($flashcardSet->user_id !== auth()->id()) {
+        if ($flashcardSet->user_id !== Auth::id()) {
             abort(403);
         }
+        
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'flashcards' => 'required|array|min:1',
+            'flashcards.*.question' => 'required|string',
+            'flashcards.*.answer' => 'required|string',
+        ]);
         
         $flashcardSet->update([
             'title' => $request->title,
@@ -88,29 +104,21 @@ class FlashcardController extends Controller
             'is_public' => $request->has('is_public'),
         ]);
         
-        // Update existing flashcards
-        if ($request->has('flashcards')) {
-            foreach ($request->flashcards as $flashcardData) {
-                if (isset($flashcardData['id'])) {
-                    $flashcard = Flashcard::find($flashcardData['id']);
-                    if ($flashcard && $flashcard->flashcard_set_id == $id) {
-                        $flashcard->update([
-                            'question' => $flashcardData['question'],
-                            'answer' => $flashcardData['answer'],
-                        ]);
-                    }
-                } else {
-                    $flashcardSet->flashcards()->create([
-                        'question' => $flashcardData['question'],
-                        'answer' => $flashcardData['answer'],
-                    ]);
-                }
-            }
+        // First, delete all existing flashcards
+        $flashcardSet->flashcards()->delete();
+        
+        // Then create new ones
+        foreach ($request->flashcards as $flashcardData) {
+            $flashcardSet->flashcards()->create([
+                'question' => $flashcardData['question'],
+                'answer' => $flashcardData['answer'],
+            ]);
         }
         
         return redirect()->route('flashcards.show', $id)
             ->with('success', 'Flashcard set updated successfully!');
     }
+    
     
    
     
@@ -173,5 +181,5 @@ class FlashcardController extends Controller
             'message' => 'Flashcard set shared successfully!'
         ]);
     }
-    
+
 }

@@ -36,19 +36,19 @@
             
             <ul class="nav-menu">
                 <li class="nav-item">
-                    <a href="{{ route('dashboard') }}" class="nav-link active">
+                    <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                         <i class="fas fa-home"></i>
                         <span class="nav-text">Dashboard</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ route('flashcards.index') }}" class="nav-link">
+                    <a href="{{ route('flashcards.index') }}" class="nav-link {{ request()->routeIs('flashcards.*') ? 'active' : '' }}">
                         <i class="fas fa-layer-group"></i>
                         <span class="nav-text">Flashcards</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ route('quizzes.index') }}" class="nav-link">
+                    <a href="{{ route('quizzes.index') }}" class="nav-link {{ request()->routeIs('quizzes.*') ? 'active' : '' }}">
                         <i class="fas fa-question-circle"></i>
                         <span class="nav-text">Quizzes</span>
                     </a>
@@ -57,26 +57,26 @@
                   
                 </li>
                 <li class="nav-item">
-                    <a href="{{ route('chat.index') }}" class="nav-link">
+                    <a href="{{ route('chat.index') }}" class="nav-link {{ request()->routeIs('chat.*') ? 'active' : '' }}">
                         <i class="fas fa-comments"></i>
                         <span class="nav-text">Chat</span>
                         <span class="nav-badge">3</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ route('study-groups.index') }}" class="nav-link">
+                    <a href="{{ route('study-groups.index') }}" class="nav-link {{ request()->routeIs('study-groups.*') ? 'active' : '' }}">
                         <i class="fas fa-users"></i>
                         <span class="nav-text">Study Groups</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ route('schedule.index') }}" class="nav-link">
+                    <a href="{{ route('schedule.index') }}" class="nav-link {{ request()->routeIs('schedule.index') ? 'active' : '' }}">
                         <i class="fas fa-calendar"></i>
                         <span class="nav-text">Schedule</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ route('settings.index') }}" class="nav-link">
+                    <a href="{{ route('settings.index') }}"  class="nav-link {{ request()->routeIs('settings.index') ? 'active' : '' }}">
                         <i class="fas fa-cog"></i>
                         <span class="nav-text">Settings</span>
                     </a>

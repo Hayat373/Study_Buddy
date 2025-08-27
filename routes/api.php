@@ -61,6 +61,16 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/groups', [ChatController::class, 'getGroups']);
         Route::post('/groups', [ChatController::class, 'createGroup']);
     });
+
+    // Quiz API Routes
+Route::prefix('quizzes')->group(function () {
+    Route::post('/create/{setId}', [QuizController::class, 'create']);
+    Route::post('/{quizId}/start', [QuizController::class, 'startAttempt']);
+    Route::post('/attempts/{attemptId}/answer', [QuizController::class, 'submitAnswer']);
+    Route::post('/attempts/{attemptId}/complete', [QuizController::class, 'completeAttempt']);
+    Route::get('/attempts/{attemptId}/results', [QuizController::class, 'getResults']);
+    Route::get('/history', [QuizController::class, 'getHistory']);
+});
     
     // Real-time updates
     Route::get('/updates', [DashboardController::class, 'streamUpdates']);

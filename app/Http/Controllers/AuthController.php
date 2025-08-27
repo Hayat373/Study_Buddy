@@ -20,7 +20,7 @@ class AuthController extends Controller
         'username' => 'required|string|max:255|unique:users',
         'email' => 'required|string|email|max:255|unique:users',
         'password' => 'required|string|min:8|confirmed',
-        'faceDescriptor' => 'required|json', // Add this line
+        // 'faceDescriptor' => 'required|json', // Add this line
         'role' => 'required|in:student,teacher,parent,lifelong_learner',
     ]);
 

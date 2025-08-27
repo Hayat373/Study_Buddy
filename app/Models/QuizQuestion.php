@@ -1,0 +1,27 @@
+// app/Models/QuizQuestion.php
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class QuizQuestion extends Model
+{
+    use HasFactory;
+
+    protected $fillable = ['quiz_id', 'flashcard_id', 'order'];
+
+    public function quiz()
+    {
+        return $this->belongsTo(Quiz::class);
+    }
+
+    public function flashcard()
+    {
+        return $this->belongsTo(Flashcard::class);
+    }
+
+    public function attemptAnswers()
+    {
+        return $this->hasMany(QuizAttemptAnswer::class);
+    }
+}

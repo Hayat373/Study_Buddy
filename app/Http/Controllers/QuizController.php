@@ -176,18 +176,19 @@ public function store(Request $request, $setId)
         return response()->json($attempt);
     }
 
-    // Get quiz results
-    public function getResults($attemptId)
-    {
-        $attempt = QuizAttempt::with('quiz', 'answers.question.flashcard')
-            ->findOrFail($attemptId);
-        
-        if ($attempt->user_id !== Auth::id()) {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        }
+   public function getResults($attemptId)
+{
+    $attempt = QuizAttempt::with('quiz', 'answers.question.flashcard')
+        ->findOrFail($attemptId);
 
-        return response()->json($attempt);
+    if ($attempt->user_id !== Auth::id()) {
+        return response()->json(['error' => 'Unauthorized'], 403);
     }
+
+    return request()->expectsJson()
+        ? response()->json($attempt)
+        : view('quizzes.results', ['attempt' => $attempt]);
+}
 
     // Get user's quiz history
     public function getHistory()
@@ -222,5 +223,6 @@ public function store(Request $request, $setId)
 
     return view('quizzes.show', ['quiz' => $quiz]);
 }
+
 
 }

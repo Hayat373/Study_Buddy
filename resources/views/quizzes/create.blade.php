@@ -15,8 +15,9 @@
         </div>
 
         <div class="quiz-create-form">
-            <form id="quizCreateForm">
-                <input type="hidden" id="flashcardSetId" value="{{ $setId }}">
+            <form id="quizCreateForm" method="POST" action="{{ route('quizzes.store', $setId) }}">
+                @csrf
+                <input type="hidden" id="flashcardSetId" name="flashcard_set_id" value="{{ $setId }}">
 
                 <div class="form-group">
                     <label for="questionCount">Number of Questions:</label>

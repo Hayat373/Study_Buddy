@@ -74,17 +74,17 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/{id}/join', [StudySessionController::class, 'join'])->name('study-sessions.join');
     });
 
-    // Quiz Routes
-    Route::prefix('quizzes')->group(function () {
-        Route::get('/', [QuizController::class, 'index'])->name('quizzes.index');
-        Route::get('/create', [QuizController::class, 'create'])->name('quizzes.create');
-        Route::post('/', [QuizController::class, 'store'])->name('quizzes.store');
-        Route::get('/{id}', [QuizController::class, 'show'])->name('quizzes.show');
-        Route::get('/{id}/edit', [QuizController::class, 'edit'])->name('quizzes.edit');
-        Route::put('/{id}', [QuizController::class, 'update'])->name('quizzes.update');
-        Route::delete('/{id}', [QuizController::class, 'destroy'])->name('quizzes.destroy');
-        Route::get('/quiz/history', [QuizController::class, 'history'])->name('quiz.history');
-    });
+   // Quiz Routes
+Route::prefix('quizzes')->group(function () {
+    Route::get('/', [QuizController::class, 'index'])->name('quizzes.index');
+    Route::get('/create/{setId}', [QuizController::class, 'create'])->name('quizzes.create');
+    Route::post('/store/{setId}', [QuizController::class, 'store'])->name('quizzes.store'); // Changed to /store
+    Route::get('/{id}', [QuizController::class, 'show'])->name('quizzes.show');
+    Route::get('/{id}/edit', [QuizController::class, 'edit'])->name('quizzes.edit');
+    Route::put('/{id}', [QuizController::class, 'update'])->name('quizzes.update');
+    Route::delete('/{id}', [QuizController::class, 'destroy'])->name('quizzes.destroy');
+    Route::get('/quiz/history', [QuizController::class, 'history'])->name('quiz.history');
+});
 
     // Video Call Routes
     Route::prefix('video-calls')->group(function () {

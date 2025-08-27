@@ -1,4 +1,5 @@
-// app/Http/Controllers/QuizController.php
+<?php
+
 namespace App\Http\Controllers;
 
 use App\Models\Quiz;
@@ -10,6 +11,16 @@ use Illuminate\Support\Facades\Auth;
 
 class QuizController extends Controller
 {
+    public function index()
+{
+    $quizzes = Quiz::with('flashcardSet')
+        ->where('user_id', Auth::id())
+        ->orderBy('created_at', 'desc')
+        ->paginate(10);
+
+    return view('quiz.index', ['quizzes' => $quizzes]);
+}
+
     // Create a new quiz from a flashcard set
     public function create(Request $request, $setId)
     {
@@ -150,4 +161,15 @@ class QuizController extends Controller
 
         return response()->json($attempts);
     }
+
+    public function history()
+{
+    $attempts = QuizAttempt::with(['quiz.flashcardSet'])
+        ->where('user_id', Auth::id())
+        ->whereNotNull('completed_at')
+        ->orderBy('completed_at', 'desc')
+        ->paginate(10);
+
+    return view('quiz.history', ['attempts' => $attempts]);
+}
 }

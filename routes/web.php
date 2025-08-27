@@ -83,6 +83,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{id}/edit', [QuizController::class, 'edit'])->name('quizzes.edit');
         Route::put('/{id}', [QuizController::class, 'update'])->name('quizzes.update');
         Route::delete('/{id}', [QuizController::class, 'destroy'])->name('quizzes.destroy');
+        Route::get('/quiz/history', [QuizController::class, 'history'])->name('quiz.history');
     });
 
     // Video Call Routes

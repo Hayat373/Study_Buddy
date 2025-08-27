@@ -63,8 +63,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 
     // Quiz API Routes
-Route::prefix('quizzes')->group(function () {
-    Route::post('/create/{setId}', [QuizController::class, 'create']);
+
+Route::prefix('api/quizzes')->group(function () {
+    Route::post('/create/{setId}', [QuizController::class, 'store']);
     Route::post('/{quizId}/start', [QuizController::class, 'startAttempt']);
     Route::post('/attempts/{attemptId}/answer', [QuizController::class, 'submitAnswer']);
     Route::post('/attempts/{attemptId}/complete', [QuizController::class, 'completeAttempt']);

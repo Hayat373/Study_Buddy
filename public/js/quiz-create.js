@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
             show_correct_answers: document.getElementById('showCorrectAnswers').checked
         };
 
+        console.log('Form data being sent:', formData); // Debugging log
         createQuizBtn.disabled = true;
         createQuizBtn.textContent = 'Creating Quiz...';
 
@@ -38,16 +39,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 body: JSON.stringify(formData)
             });
 
+            // Check for response
+            if (!response.ok) {
+                const errorData = await response.text(); // Get raw response text
+                console.error('Error response:', errorData); // Log the error response
+                throw new Error('Failed to create quiz');
+            }
+
             const data = await response.json();
 
-            if (response.ok) {
-                // Redirect to quiz page
-                window.location.href = `/quiz/${data.id}`;
-            } else {
-                alert(data.error || 'Failed to create quiz');
-                createQuizBtn.disabled = false;
-                createQuizBtn.textContent = 'Create Quiz';
-            }
+            // Redirect to quiz page
+            window.location.href = `/quiz/${data.id}`;
         } catch (error) {
             console.error('Quiz creation error:', error);
             alert('Failed to create quiz. Please try again.');

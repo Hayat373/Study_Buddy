@@ -9,6 +9,7 @@ use App\Models\Flashcard;
 use App\Models\QuizQuestion; // Ensure you have this model imported
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class QuizController extends Controller
 {
@@ -38,6 +39,39 @@ class QuizController extends Controller
             'maxQuestions' => $maxQuestions,
         ]);
     }
+
+  
+
+public function store(Request $request, $setId)
+{
+    // Log incoming request data
+    Log::info('Quiz creation request received:', $request->all());
+
+    try {
+        $request->validate([
+            'question_count' => 'required|integer|min:1',
+            'time_limit' => 'nullable|integer|min:1',
+            'shuffle_questions' => 'boolean',
+            'show_correct_answers' => 'boolean'
+        ]);
+
+        // Check if the flashcard set exists
+        $flashcardSet = FlashcardSet::findOrFail($setId);
+
+        // Create the quiz
+        $quiz = Quiz::create([
+            'title' => 'Quiz for Set ' . $setId,
+            'flashcard_set_id' => $setId,
+            // Add other fields as necessary
+        ]);
+
+        return response()->json(['success' => 'Quiz created successfully!', 'quiz' => $quiz], 201);
+    } catch (\Exception $e) {
+        Log::error('Quiz creation error: ' . $e->getMessage());
+        return response()->json(['error' => 'Failed to create quiz. Please try again.'], 500);
+    }
+}
+
 
     // Start a quiz attempt
     public function startAttempt(Request $request, $quizId)

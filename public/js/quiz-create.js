@@ -12,6 +12,23 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+
+    // Disable button if maxQuestions < 1
+        if (maxQuestions < 1 && createQuizBtn) {
+            createQuizBtn.disabled = true;
+            createQuizBtn.textContent = 'Cannot Create Quiz';
+        }
+
+
+        // Prevent invalid values
+        questionCountInput.addEventListener('change', function() {
+            if (this.value > maxQuestions) {
+                this.value = maxQuestions;
+            } else if (this.value < 1) {
+                this.value = 1;
+            }
+        });
+       
     // Handle form submission
     quizCreateForm.addEventListener('submit', async function(e) {
         e.preventDefault();

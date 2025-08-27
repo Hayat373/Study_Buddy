@@ -10,6 +10,7 @@ use App\Models\QuizQuestion; // Ensure you have this model imported
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 class QuizController extends Controller
 {
@@ -42,9 +43,12 @@ class QuizController extends Controller
 
   
 
+
+
+// ...
+
 public function store(Request $request, $setId)
 {
-    // Log incoming request data
     Log::info('Quiz creation request received:', $request->all());
 
     try {
@@ -55,23 +59,43 @@ public function store(Request $request, $setId)
             'show_correct_answers' => 'boolean'
         ]);
 
-        // Check if the flashcard set exists
         $flashcardSet = FlashcardSet::findOrFail($setId);
+        $flashcards = $flashcardSet->flashcards;
 
-        // Create the quiz
+        if ($flashcards->count() < $request->question_count) {
+            return back()->withErrors(['question_count' => ['Not enough flashcards in this set']]);
+        }
+
         $quiz = Quiz::create([
-            'title' => 'Quiz for Set ' . $setId,
+            'user_id' => Auth::id(),
             'flashcard_set_id' => $setId,
-            // Add other fields as necessary
+            'title' => 'Quiz: ' . $flashcardSet->title,
+            'description' => 'Quiz generated from ' . $flashcardSet->title,
+            'question_count' => $request->question_count,
+            'time_limit' => $request->time_limit,
+            'shuffle_questions' => $request->shuffle_questions ?? false,
+            'show_correct_answers' => $request->show_correct_answers ?? true
         ]);
 
-        return response()->json(['success' => 'Quiz created successfully!', 'quiz' => $quiz], 201);
+        $selectedFlashcards = $request->shuffle_questions
+            ? $flashcards->shuffle()->take($request->question_count)
+            : $flashcards->take($request->question_count);
+
+        foreach ($selectedFlashcards as $index => $flashcard) {
+            $quiz->questions()->create([
+                'flashcard_id' => $flashcard->id,
+                'order' => $index
+            ]);
+        }
+
+        return redirect()->route('quizzes.show', $quiz->id)->with('success', 'Quiz created successfully!');
+    } catch (ValidationException $e) {
+        return back()->withErrors($e->errors());
     } catch (\Exception $e) {
         Log::error('Quiz creation error: ' . $e->getMessage());
-        return response()->json(['error' => 'Failed to create quiz. Please try again.'], 500);
+        return back()->withErrors(['error' => 'Failed to create quiz. Please try again.']);
     }
 }
-
 
     // Start a quiz attempt
     public function startAttempt(Request $request, $quizId)
@@ -179,4 +203,16 @@ public function store(Request $request, $setId)
 
         return view('quiz.history', ['attempts' => $attempts]);
     }
+
+    public function show($id)
+{
+    $quiz = Quiz::with('questions.flashcard')->findOrFail($id);
+
+    if ($quiz->user_id !== Auth::id()) {
+        abort(403, 'Unauthorized');
+    }
+
+    return view('quizzes.show', ['quiz' => $quiz]);
+}
+
 }

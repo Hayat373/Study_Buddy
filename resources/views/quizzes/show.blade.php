@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -48,4 +48,22 @@
     </script>
     <script src="{{ asset('js/quiz-interface.js') }}"></script>
 </body>
-</html>
+</html> -->
+
+
+@extends('layouts.app')
+
+@section('title', 'Quiz: {{ $quiz->title }}')
+
+@section('content')
+<div class="container">
+    <h1>{{ $quiz->title }}</h1>
+    <p>{{ $quiz->description }}</p>
+    <p>Number of Questions: {{ $quiz->question_count }}</p>
+    <p>Time Limit: {{ $quiz->time_limit ?? 'None' }} minutes</p>
+    <p>Shuffle Questions: {{ $quiz->shuffle_questions ? 'Yes' : 'No' }}</p>
+    <p>Show Correct Answers: {{ $quiz->show_correct_answers ? 'Yes' : 'No' }}</p>
+
+    <a href="{{ route('quizzes.startAttempt', $quiz->id) }}" class="btn btn-primary">Start Quiz</a> <!-- If you have a start route -->
+</div>
+@endsection

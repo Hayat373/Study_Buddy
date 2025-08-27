@@ -1,3 +1,5 @@
+<?php
+
 // app/Models/QuizQuestion.php
 namespace App\Models;
 

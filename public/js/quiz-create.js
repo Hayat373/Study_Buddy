@@ -29,49 +29,49 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
        
-    // Handle form submission
-    quizCreateForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
+    // // Handle form submission
+    // quizCreateForm.addEventListener('submit', async function(e) {
+    //     e.preventDefault();
         
-        const formData = {
-            question_count: parseInt(questionCountInput.value),
-            time_limit: document.getElementById('timeLimit').value ? 
-                       parseInt(document.getElementById('timeLimit').value) : null,
-            shuffle_questions: document.getElementById('shuffleQuestions').checked,
-            show_correct_answers: document.getElementById('showCorrectAnswers').checked
-        };
+    //     const formData = {
+    //         question_count: parseInt(questionCountInput.value),
+    //         time_limit: document.getElementById('timeLimit').value ? 
+    //                    parseInt(document.getElementById('timeLimit').value) : null,
+    //         shuffle_questions: document.getElementById('shuffleQuestions').checked,
+    //         show_correct_answers: document.getElementById('showCorrectAnswers').checked
+    //     };
 
-        console.log('Form data being sent:', formData); // Debugging log
-        createQuizBtn.disabled = true;
-        createQuizBtn.textContent = 'Creating Quiz...';
+    //     console.log('Form data being sent:', formData); // Debugging log
+    //     createQuizBtn.disabled = true;
+    //     createQuizBtn.textContent = 'Creating Quiz...';
 
-        try {
-            const response = await fetch(`/api/quizzes/create/${flashcardSetId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-                },
-                body: JSON.stringify(formData)
-            });
+    //     try {
+    //         const response = await fetch(`/api/quizzes/create/${flashcardSetId}`, {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+    //                 'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+    //             },
+    //             body: JSON.stringify(formData)
+    //         });
 
-            // Check for response
-            if (!response.ok) {
-                const errorData = await response.text(); // Get raw response text
-                console.error('Error response:', errorData); // Log the error response
-                throw new Error('Failed to create quiz');
-            }
+    //         // Check for response
+    //         if (!response.ok) {
+    //             const errorData = await response.text(); // Get raw response text
+    //             console.error('Error response:', errorData); // Log the error response
+    //             throw new Error('Failed to create quiz');
+    //         }
 
-            const data = await response.json();
+    //         const data = await response.json();
 
-            // Redirect to quiz page
-            window.location.href = `/quiz/${data.id}`;
-        } catch (error) {
-            console.error('Quiz creation error:', error);
-            alert('Failed to create quiz. Please try again.');
-            createQuizBtn.disabled = false;
-            createQuizBtn.textContent = 'Create Quiz';
-        }
-    });
+    //         // Redirect to quiz page
+    //         window.location.href = `/quiz/${data.id}`;
+    //     } catch (error) {
+    //         console.error('Quiz creation error:', error);
+    //         alert('Failed to create quiz. Please try again.');
+    //         createQuizBtn.disabled = false;
+    //         createQuizBtn.textContent = 'Create Quiz';
+    //     }
+    // });
 });

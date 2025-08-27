@@ -63,7 +63,9 @@ public function store(Request $request, $setId)
         $flashcards = $flashcardSet->flashcards;
 
         if ($flashcards->count() < $request->question_count) {
-            return back()->withErrors(['question_count' => ['Not enough flashcards in this set']]);
+            return $request->expectsJson()
+                ? response()->json(['errors' => ['question_count' => ['Not enough flashcards in this set']]], 422)
+                : back()->withErrors(['question_count' => ['Not enough flashcards in this set']]);
         }
 
         $quiz = Quiz::create([
@@ -88,12 +90,18 @@ public function store(Request $request, $setId)
             ]);
         }
 
-        return redirect()->route('quizzes.show', $quiz->id)->with('success', 'Quiz created successfully!');
+        return $request->expectsJson()
+            ? response()->json(['success' => 'Quiz created successfully!', 'id' => $quiz->id], 201)
+            : redirect()->route('quizzes.show', $quiz->id)->with('success', 'Quiz created successfully!');
     } catch (ValidationException $e) {
-        return back()->withErrors($e->errors());
+        return $request->expectsJson()
+            ? response()->json(['errors' => $e->errors()], 422)
+            : back()->withErrors($e->errors());
     } catch (\Exception $e) {
         Log::error('Quiz creation error: ' . $e->getMessage());
-        return back()->withErrors(['error' => 'Failed to create quiz. Please try again.']);
+        return $request->expectsJson()
+            ? response()->json(['error' => 'Failed to create quiz. Please try again.'], 500)
+            : back()->withErrors(['error' => 'Failed to create quiz. Please try again.']);
     }
 }
 

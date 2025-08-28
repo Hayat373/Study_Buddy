@@ -1,4 +1,5 @@
 @extends('layouts.app')
+<link rel="stylesheet" href="{{ asset('css/quiz.css') }}">
 
 @section('title', 'Quiz: {{ $quiz->title }}')
 

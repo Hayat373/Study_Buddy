@@ -237,5 +237,94 @@ public function store(Request $request, $setId)
     return view('quizzes.show', ['quiz' => $quiz]);
 }
 
+public function edit($id)
+{
+    $quiz = Quiz::with('flashcardSet')->findOrFail($id);
+
+    if ($quiz->user_id !== Auth::id()) {
+        return redirect()->route('quizzes.index')->withErrors(['error' => 'Unauthorized']);
+    }
+
+    $maxQuestions = $quiz->flashcardSet->flashcards()->count();
+
+    return view('quizzes.edit', [
+        'quiz' => $quiz,
+        'maxQuestions' => $maxQuestions,
+    ]);
+}
+
+public function update(Request $request, $id)
+{
+    Log::info('Quiz update request received:', $request->all());
+
+    try {
+        $quiz = Quiz::findOrFail($id);
+
+        if ($quiz->user_id !== Auth::id()) {
+            return back()->withErrors(['error' => 'Unauthorized']);
+        }
+
+        $request->validate([
+            'question_count' => 'required|integer|min:1',
+            'time_limit' => 'nullable|integer|min:1',
+            'shuffle_questions' => 'boolean',
+            'show_correct_answers' => 'boolean',
+        ]);
+
+        $flashcardSet = FlashcardSet::findOrFail($quiz->flashcard_set_id);
+        $flashcards = $flashcardSet->flashcards;
+
+        if ($flashcards->count() < $request->question_count) {
+            return back()->withErrors(['question_count' => ['Not enough flashcards in this set']]);
+        }
+
+        $quiz->update([
+            'question_count' => $request->question_count,
+            'time_limit' => $request->time_limit,
+            'shuffle_questions' => $request->shuffle_questions ?? false,
+            'show_correct_answers' => $request->show_correct_answers ?? true,
+        ]);
+
+        // Optionally, update questions if needed
+        $quiz->questions()->delete(); // Clear existing questions
+        $selectedFlashcards = $request->shuffle_questions
+            ? $flashcards->shuffle()->take($request->question_count)
+            : $flashcards->take($request->question_count);
+
+        foreach ($selectedFlashcards as $index => $flashcard) {
+            $quiz->questions()->create([
+                'flashcard_id' => $flashcard->id,
+                'order' => $index,
+            ]);
+        }
+
+        return redirect()->route('quizzes.show', $quiz->id)->with('success', 'Quiz updated successfully!');
+    } catch (\Exception $e) {
+        Log::error('Quiz update error: ' . $e->getMessage());
+        return back()->withErrors(['error' => 'Failed to update quiz. Please try again.']);
+    }
+}
+
+public function destroy($id)
+{
+    try {
+        $quiz = Quiz::findOrFail($id);
+
+        if ($quiz->user_id !== Auth::id()) {
+            return redirect()->route('quizzes.index')->withErrors(['error' => 'Unauthorized']);
+        }
+
+        // Delete related questions and attempts (if needed)
+        $quiz->questions()->delete();
+        $quiz->attempts()->delete();
+        $quiz->delete();
+
+        return redirect()->route('quizzes.index')->with('success', 'Quiz deleted successfully!');
+    } catch (\Exception $e) {
+        Log::error('Quiz deletion error: ' . $e->getMessage());
+        return back()->withErrors(['error' => 'Failed to delete quiz. Please try again.']);
+    }
+}
+
 
 }

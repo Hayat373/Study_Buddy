@@ -50,11 +50,16 @@ body {
     font-weight: 500;
     text-align: center;
     text-decoration: none;
-    transition: background-color 0.2s;
+    transition: background-color 0.2s, transform 0.1s;
 }
 
 .btn:hover {
     background-color: #0069d9;
+    transform: translateY(-1px);
+}
+
+.btn:active {
+    transform: translateY(0);
 }
 
 .btn-primary {
@@ -99,10 +104,11 @@ body {
 
 /* Form Styles */
 .quiz-create-form {
-    background: white;
+    background-color: #11263d;
     border-radius: 8px;
     padding: 25px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    color: #ffffff; /* Improved text contrast for dark background */
 }
 
 .form-group {
@@ -113,6 +119,7 @@ body {
     display: block;
     margin-bottom: 5px;
     font-weight: 500;
+    color: #ffffff; /* Match quiz-create-form text color */
 }
 
 .form-group input[type="number"],
@@ -124,6 +131,7 @@ body {
     border-radius: 4px;
     font-size: 1rem;
     box-sizing: border-box;
+    background-color: #ffffff; /* Ensure input fields are readable */
 }
 
 .checkbox-group {
@@ -134,6 +142,7 @@ body {
     display: flex;
     align-items: center;
     cursor: pointer;
+    color: #ffffff; /* Match quiz-create-form text color */
 }
 
 .checkbox-container input[type="checkbox"] {
@@ -143,8 +152,37 @@ body {
 
 .max-questions {
     font-size: 0.875rem;
-    color: #6c757d;
+    color: #adb5bd; /* Lighter gray for better contrast on dark background */
     margin-left: 5px;
+}
+
+/* Table Styles for index.blade.php */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #ffffff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.table th,
+.table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #e1e4e8;
+}
+
+.table th {
+    background-color: #2c3e50;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.table tr:hover {
+    background-color: #f8f9fa;
+}
+
+.table .btn-sm {
+    margin-right: 5px; /* Space between action buttons */
 }
 
 /* Quiz Interface Styles */
@@ -327,6 +365,48 @@ body {
     margin-top: 30px;
 }
 
+/* Alert Styles for index.blade.php */
+.alert {
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+
+.alert-info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+/* Error and Success Messages */
+.error-messages {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+.error-messages ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.error {
+    color: #721c24;
+    font-size: 0.9em;
+    margin-top: 5px;
+    display: block;
+}
+
+.success-message {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .quiz-header {
@@ -356,36 +436,16 @@ body {
     .back-btn {
         margin-top: 10px;
     }
-}
-.quiz-create-form{
-    background-color:  #11263d;
-;
-}
-
-.error-messages {
-    background-color: #f8d7da;
-    color: #721c24;
-    padding: 10px;
-    border-radius: 5px;
-    margin-bottom: 15px;
-}
-
-.error-messages ul {
-    margin: 0;
-    padding-left: 20px;
-}
-
-.error {
-    color: #721c24;
-    font-size: 0.9em;
-    margin-top: 5px;
-    display: block;
-}
-
-.success-message {
-    background-color: #d4edda;
-    color: #155724;
-    padding: 10px;
-    border-radius: 5px;
-    margin-bottom: 15px;
+    
+    .table {
+        font-size: 0.9rem;
+    }
+    
+    .table td, .table th {
+        padding: 8px;
+    }
+    
+    .btn-sm {
+        margin-bottom: 5px; /* Stack buttons vertically on small screens */
+    }
 }

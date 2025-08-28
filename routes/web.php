@@ -80,6 +80,9 @@ Route::prefix('quizzes')->group(function () {
     Route::get('/create/{setId}', [QuizController::class, 'create'])->name('quizzes.create');
     Route::post('/store/{setId}', [QuizController::class, 'store'])->name('quizzes.store');
     Route::get('/{id}', [QuizController::class, 'show'])->name('quizzes.show');
+    Route::get('/{id}/edit', [QuizController::class, 'edit'])->name('quizzes.edit');
+    Route::put('/{id}', [QuizController::class, 'update'])->name('quizzes.update');
+    Route::delete('/{id}', [QuizController::class, 'destroy'])->name('quizzes.destroy'); // Add this
     Route::get('/attempts/{attemptId}/results', [QuizController::class, 'getResults'])->name('quizzes.results');
     Route::get('/quiz/history', [QuizController::class, 'history'])->name('quiz.history');
 });

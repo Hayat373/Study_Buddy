@@ -6,9 +6,24 @@
 <div class="container">
     <h1 class="mb-4">Quizzes</h1>
 
+    @if (session('success'))
+        <div class="success-message">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if ($errors->any())
+        <div class="error-messages">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <div class="mb-3">
-        <!-- Assuming you want to create a quiz from a specific flashcard set -->
-        @foreach ($flashcardSets as $flashcardSet) <!-- Ensure this variable is available -->
+        @foreach ($flashcardSets as $flashcardSet)
             <a href="{{ route('quizzes.create', ['setId' => $flashcardSet->id]) }}" class="btn btn-primary mb-2">Create Quiz from {{ $flashcardSet->title }}</a>
         @endforeach
     </div>
@@ -46,6 +61,7 @@
                 @endforeach
             </tbody>
         </table>
+        {{ $quizzes->links() }}
     @endif
 </div>
 @endsection

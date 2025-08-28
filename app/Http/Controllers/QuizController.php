@@ -105,10 +105,14 @@ public function store(Request $request, $setId)
     }
 }
 
-    // Start a quiz attempt
-    public function startAttempt(Request $request, $quizId)
-    {
+   public function startAttempt(Request $request, $quizId)
+{
+    try {
         $quiz = Quiz::with('questions.flashcard')->findOrFail($quizId);
+
+        if ($quiz->user_id !== Auth::id()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
 
         $attempt = QuizAttempt::create([
             'user_id' => Auth::id(),
@@ -121,8 +125,17 @@ public function store(Request $request, $setId)
             'attempt' => $attempt,
             'quiz' => $quiz,
             'questions' => $quiz->questions
+        ], 200);
+    } catch (\Exception $e) {
+        Log::error('Start quiz attempt error: ', [
+            'quizId' => $quizId,
+            'userId' => Auth::id(),
+            'message' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
         ]);
+        return response()->json(['error' => 'Failed to start quiz. Please try again.'], 500);
     }
+}
 
     // Submit an answer for a question
     public function submitAnswer(Request $request, $attemptId)

@@ -103,4 +103,30 @@ class ChatController extends Controller
         
         return redirect()->route('chat.show', $chat);
     }
+    public function userSearch(Request $request)
+{
+    $query = $request->get('query');
+    $currentUser = auth()->user();
+    
+    $users = User::where('id', '!=', $currentUser->id)
+                ->where(function($q) use ($query) {
+                    $q->where('username', 'like', "%{$query}%")
+                      ->orWhere('email', 'like', "%{$query}%")
+                      ->orWhere('name', 'like', "%{$query}%");
+                })
+                ->limit(10)
+                ->get();
+    
+    return response()->json($users);
+}
+
+public function startChat(Request $request)
+{
+    $request->validate([
+        'user_id' => 'required|exists:users,id'
+    ]);
+    
+    $otherUser = User::findOrFail($request->user_id);
+    return $this->findOrCreate($otherUser);
+}
 }

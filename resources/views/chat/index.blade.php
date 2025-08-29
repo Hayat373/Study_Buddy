@@ -60,6 +60,92 @@
     color: rgba(57, 183, 255, 0.6);
 }
 
+.user-search-container {
+    position: relative;
+    margin-bottom: 15px;
+}
+
+.user-search-input {
+    width: 100%;
+    padding: 12px 15px 12px 45px;
+    background: rgba(15, 30, 45, 0.6);
+    border: 1px solid rgba(57, 183, 255, 0.1);
+    border-radius: 12px;
+    color: #dffbff;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.user-search-input:focus {
+    outline: none;
+    border-color: rgba(57, 183, 255, 0.4);
+    box-shadow: 0 0 0 3px rgba(57, 183, 255, 0.1);
+}
+
+.user-search-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(57, 183, 255, 0.6);
+}
+
+.user-search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: rgba(15, 30, 45, 0.95);
+    border-radius: 8px;
+    border: 1px solid rgba(57, 183, 255, 0.2);
+    margin-top: 5px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+}
+
+.user-result-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.user-result-item:hover {
+    background: rgba(57, 183, 255, 0.1);
+}
+
+.user-result-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #39b7ff 0%, #2dc2ff 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+.user-result-info {
+    flex: 1;
+}
+
+.user-result-name {
+    font-weight: 600;
+    color: #dffbff;
+    margin-bottom: 2px;
+}
+
+.user-result-username {
+    font-size: 12px;
+    color: rgba(223, 251, 255, 0.7);
+}
+
 .chat-list {
     flex: 1;
     overflow-y: auto;
@@ -177,101 +263,34 @@
     opacity: 0.8;
 }
 
-.message {
-    margin-bottom: 20px;
+.start-chat-container {
     display: flex;
-}
-
-.message.sent {
-    justify-content: flex-end;
-}
-
-.message.received {
-    justify-content: flex-start;
-}
-
-.message-content {
-    max-width: 70%;
-    padding: 12px 16px;
-    border-radius: 18px;
-    position: relative;
-}
-
-.message.sent .message-content {
-    background: linear-gradient(135deg, #39b7ff 0%, #2dc2ff 100%);
-    color: white;
-    border-bottom-right-radius: 4px;
-}
-
-.message.received .message-content {
-    background: rgba(15, 30, 45, 0.6);
-    color: #dffbff;
-    border-bottom-left-radius: 4px;
-    border: 1px solid rgba(57, 183, 255, 0.1);
-}
-
-.message-time {
-    font-size: 11px;
-    margin-top: 5px;
-    opacity: 0.8;
-}
-
-.chat-input-container {
-    padding: 20px;
-    border-top: 1px solid rgba(57, 183, 255, 0.1);
-    background: rgba(15, 30, 45, 0.8);
-}
-
-.chat-input-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.chat-input {
-    flex: 1;
-    padding: 12px 16px;
-    background: rgba(10, 25, 41, 0.6);
-    border: 1px solid rgba(57, 183, 255, 0.1);
-    border-radius: 24px;
-    resize: none;
-    font-family: inherit;
-    font-size: 14px;
-    line-height: 1.4;
-    color: #dffbff;
-    max-height: 120px;
-    transition: border-color 0.3s ease;
-}
-
-.chat-input:focus {
-    outline: none;
-    border-color: rgba(57, 183, 255, 0.4);
-}
-
-.send-button {
-    width: 48px;
-    height: 48px;
-    background: linear-gradient(135deg, #39b7ff 0%, #2dc2ff 100%);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    height: 100%;
+    padding: 20px;
+    text-align: center;
 }
 
-.send-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(57, 183, 255, 0.3);
+.start-chat-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+    color: rgba(57, 183, 255, 0.7);
 }
 
-.send-button:disabled {
-    background: rgba(57, 183, 255, 0.3);
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
+.start-chat-title {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #dffbff;
+}
+
+.start-chat-description {
+    font-size: 16px;
+    margin-bottom: 30px;
+    color: rgba(223, 251, 255, 0.8);
+    max-width: 400px;
 }
 
 /* Responsive */
@@ -291,10 +310,6 @@
     .chat-main {
         height: 60%;
     }
-    
-    .message-content {
-        max-width: 85%;
-    }
 }
 </style>
 @endsection
@@ -308,9 +323,10 @@
 <div class="chat-container">
     <div class="chat-sidebar">
         <div class="chat-header">
-            <div class="chat-search">
-                <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search conversations...">
+            <div class="user-search-container">
+                <i class="fas fa-search user-search-icon"></i>
+                <input type="text" class="user-search-input" placeholder="Search users to chat with...">
+                <div class="user-search-results" id="userSearchResults"></div>
             </div>
         </div>
         <div class="chat-list">
@@ -350,24 +366,84 @@
     </div>
     
     <div class="chat-main">
-        <div class="chat-empty">
-            <i class="fas fa-comment-dots"></i>
-            <p>Select a conversation to start chatting</p>
+        <div class="start-chat-container">
+            <i class="fas fa-comment-dots start-chat-icon"></i>
+            <h2 class="start-chat-title">Start a Conversation</h2>
+            <p class="start-chat-description">Search for users above to start chatting with other Study Buddy users.</p>
         </div>
     </div>
 </div>
+
+<form id="startChatForm" action="{{ route('chat.start') }}" method="POST" style="display: none;">
+    @csrf
+    <input type="hidden" name="user_id" id="startChatUserId">
+</form>
 @endsection
 
 @section('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const chatItems = document.querySelectorAll('.chat-item');
+    const userSearchInput = document.querySelector('.user-search-input');
+    const userSearchResults = document.getElementById('userSearchResults');
+    const startChatForm = document.getElementById('startChatForm');
+    const startChatUserId = document.getElementById('startChatUserId');
     
-    chatItems.forEach(item => {
-        item.addEventListener('click', function() {
-            chatItems.forEach(i => i.classList.remove('active'));
-            this.classList.add('active');
-        });
+    let searchTimeout;
+    
+    // User search functionality
+    userSearchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        const query = this.value.trim();
+        
+        if (query.length < 2) {
+            userSearchResults.style.display = 'none';
+            return;
+        }
+        
+        searchTimeout = setTimeout(() => {
+            fetch(`{{ route('chat.users.search') }}?query=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(users => {
+                    if (users.length === 0) {
+                        userSearchResults.innerHTML = '<div class="user-result-item">No users found</div>';
+                    } else {
+                        userSearchResults.innerHTML = users.map(user => `
+                            <div class="user-result-item" data-user-id="${user.id}">
+                                <div class="user-result-avatar">${user.username.charAt(0).toUpperCase()}</div>
+                                <div class="user-result-info">
+                                    <div class="user-result-name">${user.username}</div>
+                                    <div class="user-result-username">${user.email}</div>
+                                </div>
+                            </div>
+                        `).join('');
+                    }
+                    userSearchResults.style.display = 'block';
+                    
+                    // Add click event to user results
+                    document.querySelectorAll('.user-result-item[data-user-id]').forEach(item => {
+                        item.addEventListener('click', function() {
+                            const userId = this.getAttribute('data-user-id');
+                            startChatUserId.value = userId;
+                            startChatForm.submit();
+                        });
+                    });
+                })
+                .catch(error => {
+                    console.error('Error searching users:', error);
+                });
+        }, 300);
+    });
+    
+    // Hide search results when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!userSearchInput.contains(e.target) && !userSearchResults.contains(e.target)) {
+            userSearchResults.style.display = 'none';
+        }
+    });
+    
+    // Keep results visible when clicking on them
+    userSearchResults.addEventListener('click', function(e) {
+        e.stopPropagation();
     });
 });
 </script>

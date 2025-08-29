@@ -100,6 +100,8 @@ Route::prefix('chat')->group(function () {
     Route::get('/{chat}', [ChatController::class, 'show'])->name('chat.show');
     Route::post('/{chat}/message', [ChatController::class, 'storeMessage'])->name('chat.message.store');
     Route::get('/user/{user}', [ChatController::class, 'findOrCreate'])->name('chat.with.user');
+    Route::get('/users/search', [ChatController::class, 'userSearch'])->name('chat.users.search');
+Route::post('/start', [ChatController::class, 'startChat'])->name('chat.start');
 });
 
     // Study Group Routes

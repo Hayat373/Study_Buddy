@@ -323,12 +323,15 @@
 
 <div class="chat-container">
     <div class="chat-sidebar">
-        <div class="chat-header">
-            <div class="chat-search">
-                <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search conversations...">
-            </div>
-        </div>
+        {{-- Replace the chat-header section with this code --}}
+<div class="chat-header">
+    <div class="user-search-container">
+        <i class="fas fa-search user-search-icon"></i>
+        <input type="text" class="user-search-input" placeholder="Search users to chat with...">
+        <div class="user-search-results" id="userSearchResults"></div>
+    </div>
+</div>
+
         <div class="chat-list">
             @forelse($chats as $c)
             <a href="{{ route('chat.show', $c) }}" class="chat-item {{ $c->id == $chat->id ? 'active' : '' }}">
@@ -406,8 +409,14 @@
 </div>
 
 <div id="chatContainer" data-chat-id="{{ $chat->id }}" data-user-id="{{ auth()->id() }}"></div>
+
+<form id="startChatForm" action="{{ route('chat.start') }}" method="POST" style="display: none;">
+    @csrf
+    <input type="hidden" name="user_id" id="startChatUserId">
+</form>
 @endsection
 
+@section('scripts')
 @section('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -417,10 +426,76 @@ document.addEventListener('DOMContentLoaded', function() {
     const messageInput = document.getElementById('messageInput');
     const sendButton = document.getElementById('sendButton');
     
+    // User search functionality
+    const userSearchInput = document.querySelector('.user-search-input');
+    const userSearchResults = document.getElementById('userSearchResults');
+    const startChatForm = document.getElementById('startChatForm');
+    const startChatUserId = document.getElementById('startChatUserId');
+    
+    let searchTimeout;
+    
     if (!chatContainer) return;
     
     const chatId = chatContainer.dataset.chatId;
     const userId = chatContainer.dataset.userId;
+    
+    // User search functionality
+    if (userSearchInput) {
+        userSearchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            const query = this.value.trim();
+            
+            if (query.length < 2) {
+                userSearchResults.style.display = 'none';
+                return;
+            }
+            
+            searchTimeout = setTimeout(() => {
+                fetch(`{{ route('chat.users.search') }}?query=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(users => {
+                        if (users.length === 0) {
+                            userSearchResults.innerHTML = '<div class="user-result-item">No users found</div>';
+                        } else {
+                            userSearchResults.innerHTML = users.map(user => `
+                                <div class="user-result-item" data-user-id="${user.id}">
+                                    <div class="user-result-avatar">${user.username.charAt(0).toUpperCase()}</div>
+                                    <div class="user-result-info">
+                                        <div class="user-result-name">${user.username}</div>
+                                        <div class="user-result-username">${user.email}</div>
+                                    </div>
+                                </div>
+                            `).join('');
+                        }
+                        userSearchResults.style.display = 'block';
+                        
+                        // Add click event to user results
+                        document.querySelectorAll('.user-result-item[data-user-id]').forEach(item => {
+                            item.addEventListener('click', function() {
+                                const userId = this.getAttribute('data-user-id');
+                                startChatUserId.value = userId;
+                                startChatForm.submit();
+                            });
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error searching users:', error);
+                    });
+            }, 300);
+        });
+        
+        // Hide search results when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!userSearchInput.contains(e.target) && !userSearchResults.contains(e.target)) {
+                userSearchResults.style.display = 'none';
+            }
+        });
+        
+        // Keep results visible when clicking on them
+        userSearchResults.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    }
     
     // Scroll to bottom of chat
     function scrollToBottom() {

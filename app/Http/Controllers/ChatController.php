@@ -145,4 +145,40 @@ public function startChat(Request $request)
     $otherUser = User::findOrFail($request->user_id);
     return $this->findOrCreate($otherUser);
 }
+
+public function getUnreadCount()
+{
+    $user = Auth::user();
+    
+    $unreadCount = Message::whereHas('chat', function($query) use ($user) {
+            $query->where('user1_id', $user->id)
+                  ->orWhere('user2_id', $user->id);
+        })
+        ->where('sender_id', '!=', $user->id)
+        ->where('is_read', false)
+        ->count();
+    
+    return response()->json(['unread_count' => $unreadCount]);
+}
+
+public function markAllAsRead()
+{
+    $user = Auth::user();
+    
+    // Get all chats for the user
+    $chats = Chat::where('user1_id', $user->id)
+                ->orWhere('user2_id', $user->id)
+                ->get();
+    
+    // Mark all messages as read in these chats
+    foreach ($chats as $chat) {
+        Message::where('chat_id', $chat->id)
+                ->where('sender_id', '!=', $user->id)
+                ->where('is_read', false)
+                ->update(['is_read' => true]);
+    }
+    
+    return response()->json(['success' => true]);
+}
+
 }

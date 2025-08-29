@@ -102,6 +102,8 @@ Route::prefix('chat')->group(function () {
     Route::get('/user/{user}', [ChatController::class, 'findOrCreate'])->name('chat.with.user');
     Route::get('/users/search', [ChatController::class, 'userSearch'])->name('chat.users.search');
 Route::post('/start', [ChatController::class, 'startChat'])->name('chat.start');
+Route::get('/unread-count', [ChatController::class, 'getUnreadCount'])->name('chat.unread.count');
+Route::post('/mark-all-read', [ChatController::class, 'markAllAsRead'])->name('chat.mark.all.read');
 });
 
     // Study Group Routes

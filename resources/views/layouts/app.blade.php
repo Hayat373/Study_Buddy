@@ -57,12 +57,13 @@
                 <li class="nav-item">
                   
                 </li>
+
                 <li class="nav-item">
-    <a href="{{ route('chat.index') }}" class="nav-link {{ request()->routeIs('chat.*') ? 'active' : '' }}">
-        <i class="fas fa-comments"></i>
-        <span class="nav-text">Chat</span>
-        <span class="nav-badge">3</span>
-    </a>
+   <a href="{{ route('chat.index') }}" class="nav-link {{ request()->routeIs('chat.*') ? 'active' : '' }}">
+      <i class="fas fa-comments"></i>
+      <span class="nav-text">Chat</span>
+      <span class="nav-badge" id="navChatBadge">0</span>
+   </a>
 </li>
 
                 <li class="nav-item">
@@ -102,30 +103,41 @@
         </aside>
 
         <!-- Main Content -->
-        <main class="main-content">
-            <!-- Header -->
-            <header class="main-header">
-                <div class="header-search">
-                    <i class="fas fa-search"></i>
-                    <input type="text" placeholder="Search flashcards, quizzes, groups...">
-                </div>
-                
-                <div class="header-actions">
-                    <button class="header-btn notification-btn">
-                        <i class="fas fa-bell"></i>
-                        <span class="notification-badge">3</span>
-                    </button>
-                    <button class="header-btn theme-toggle" id="themeToggle">
-                        <i class="fas fa-moon"></i>
-                    </button>
-                </div>
-            </header>
+<main class="main-content">
+    <!-- Header -->
+    <header class="main-header">
+        <div class="header-search">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Search flashcards, quizzes, groups...">
+        </div>
+        
+       <div class="header-actions">
+    @if(request()->routeIs('chat.*'))
+    <button class="header-btn notification-btn" id="notificationBtn">
+        <i class="fas fa-bell"></i>
+        <span class="notification-badge" id="notificationBadge">0</span>
+    </button>
+    @else
+    <button class="header-btn notification-btn">
+        <i class="fas fa-bell"></i>
+        <span class="notification-badge">3</span>
+    </button>
+    @endif
+    <button class="header-btn theme-toggle" id="themeToggle">
+        <i class="fas fa-moon"></i>
+    </button>
+</div>
+    </header>
 
-            <!-- Dashboard Content -->
-            <div class="dashboard-content">
-                @yield('content')
-            </div>
-        </main>
+    
+
+    <!-- Dashboard Content -->
+    <div class="dashboard-content">
+        @yield('content')
+    </div>
+   
+</main>
+
     </div>
 
     <!-- Scripts -->

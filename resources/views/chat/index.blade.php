@@ -420,6 +420,172 @@
     transform: none;
     box-shadow: none;
 }
+/* Notification Styles for Chat */
+.notification-dropdown {
+    position: absolute;
+    top: 70px;
+    right: 20px;
+    width: 360px;
+    background: rgba(15, 30, 45, 0.95);
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(57, 183, 255, 0.2);
+    z-index: 1000;
+    display: none;
+    overflow: hidden;
+}
+
+.notification-dropdown.show {
+    display: block;
+}
+
+.notification-header {
+    padding: 20px;
+    border-bottom: 1px solid rgba(57, 183, 255, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.notification-header h3 {
+    color: #dffbff;
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.notification-clear {
+    background: transparent;
+    border: none;
+    color: rgba(57, 183, 255, 0.8);
+    font-size: 12px;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.notification-clear:hover {
+    color: #39b7ff;
+}
+
+.notification-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.notification-item {
+    padding: 15px 20px;
+    border-bottom: 1px solid rgba(57, 183, 255, 0.1);
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.notification-item:hover {
+    background: rgba(57, 183, 255, 0.1);
+}
+
+.notification-item.unread {
+    background: rgba(57, 183, 255, 0.08);
+}
+
+.notification-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.notification-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #39b7ff 0%, #2dc2ff 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.notification-details {
+    flex: 1;
+}
+
+.notification-message {
+    color: #dffbff;
+    font-size: 14px;
+    margin-bottom: 4px;
+    line-height: 1.4;
+}
+
+.notification-time {
+    color: rgba(57, 183, 255, 0.7);
+    font-size: 12px;
+}
+
+.notification-empty {
+    padding: 40px 20px;
+    text-align: center;
+    color: rgba(223, 251, 255, 0.6);
+}
+
+.notification-empty i {
+    font-size: 32px;
+    margin-bottom: 10px;
+    opacity: 0.7;
+}
+
+.notification-empty p {
+    margin: 0;
+    font-size: 14px;
+}
+
+/* Light theme adjustments */
+.light-theme .notification-dropdown {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(57, 183, 255, 0.3);
+}
+
+.light-theme .notification-header {
+    border-bottom: 1px solid rgba(57, 183, 255, 0.2);
+}
+
+.light-theme .notification-header h3 {
+    color: #2a4d69;
+}
+
+.light-theme .notification-item {
+    border-bottom: 1px solid rgba(57, 183, 255, 0.2);
+}
+
+.light-theme .notification-item:hover {
+    background: rgba(57, 183, 255, 0.1);
+}
+
+.light-theme .notification-item.unread {
+    background: rgba(57, 183, 255, 0.08);
+}
+
+.light-theme .notification-message {
+    color: #2a4d69;
+}
+
+.light-theme .notification-time {
+    color: rgba(57, 183, 255, 0.8);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .notification-dropdown {
+        position: fixed;
+        top: 70px;
+        right: 10px;
+        left: 10px;
+        width: auto;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+}
 
 /* Responsive */
 @media (max-width: 768px) {
@@ -507,6 +673,19 @@
         </div>
     </div>
 </div>
+<!-- Notification Dropdown (Chat specific) -->
+<div class="notification-dropdown" id="notificationDropdown">
+    <div class="notification-header">
+        <h3>Chat Notifications</h3>
+        <button class="notification-clear" id="markAllAsRead">Mark all as read</button>
+    </div>
+    <div class="notification-list" id="notificationList">
+        <div class="notification-empty">
+            <i class="fas fa-bell-slash"></i>
+            <p>No new notifications</p>
+        </div>
+    </div>
+</div>
 
 <form id="startChatForm" action="{{ route('chat.start') }}" method="POST" style="display: none;">
     @csrf
@@ -521,64 +700,196 @@ document.addEventListener('DOMContentLoaded', function() {
     const userSearchResults = document.getElementById('userSearchResults');
     const startChatForm = document.getElementById('startChatForm');
     const startChatUserId = document.getElementById('startChatUserId');
+
+    // Chat-specific notification functionality
+    const notificationBtn = document.getElementById('notificationBtn');
+    const notificationDropdown = document.getElementById('notificationDropdown');
+    const notificationBadge = document.getElementById('notificationBadge');
+    const markAllAsReadBtn = document.getElementById('markAllAsRead');
     
     let searchTimeout;
     
     // User search functionality
-    userSearchInput.addEventListener('input', function() {
-        clearTimeout(searchTimeout);
-        const query = this.value.trim();
+    if (userSearchInput) {
+        userSearchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            const query = this.value.trim();
+            
+            if (query.length < 2) {
+                userSearchResults.style.display = 'none';
+                return;
+            }
+            
+            searchTimeout = setTimeout(() => {
+                fetch(`{{ route('chat.users.search') }}?query=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(users => {
+                        if (users.length === 0) {
+                            userSearchResults.innerHTML = '<div class="user-result-item">No users found</div>';
+                        } else {
+                            userSearchResults.innerHTML = users.map(user => `
+                                <div class="user-result-item" data-user-id="${user.id}">
+                                    <div class="user-result-avatar">${user.username.charAt(0).toUpperCase()}</div>
+                                    <div class="user-result-info">
+                                        <div class="user-result-name">${user.username}</div>
+                                        <div class="user-result-username">${user.email}</div>
+                                    </div>
+                                </div>
+                            `).join('');
+                        }
+                        userSearchResults.style.display = 'block';
+                        
+                        // Add click event to user results
+                        document.querySelectorAll('.user-result-item[data-user-id]').forEach(item => {
+                            item.addEventListener('click', function() {
+                                const userId = this.getAttribute('data-user-id');
+                                startChatUserId.value = userId;
+                                startChatForm.submit();
+                            });
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error searching users:', error);
+                    });
+            }, 300);
+        });
         
-        if (query.length < 2) {
-            userSearchResults.style.display = 'none';
-            return;
-        }
+        // Hide search results when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!userSearchInput.contains(e.target) && !userSearchResults.contains(e.target)) {
+                userSearchResults.style.display = 'none';
+            }
+        });
         
-        searchTimeout = setTimeout(() => {
-            fetch(`{{ route('chat.users.search') }}?query=${encodeURIComponent(query)}`)
-                .then(response => response.json())
-                .then(users => {
-                    if (users.length === 0) {
-                        userSearchResults.innerHTML = '<div class="user-result-item">No users found</div>';
-                    } else {
-                        userSearchResults.innerHTML = users.map(user => `
-                            <div class="user-result-item" data-user-id="${user.id}">
-                                <div class="user-result-avatar">${user.username.charAt(0).toUpperCase()}</div>
-                                <div class="user-result-info">
-                                    <div class="user-result-name">${user.username}</div>
-                                    <div class="user-result-username">${user.email}</div>
+        // Keep results visible when clicking on them
+        userSearchResults.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    }
+    
+    // Toggle notifications dropdown
+    if (notificationBtn && notificationDropdown) {
+        notificationBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            notificationDropdown.classList.toggle('show');
+            loadChatNotifications();
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!notificationDropdown.contains(e.target) && !notificationBtn.contains(e.target)) {
+                notificationDropdown.classList.remove('show');
+            }
+        });
+    }
+    
+    // Mark all notifications as read
+    if (markAllAsReadBtn) {
+        markAllAsReadBtn.addEventListener('click', function() {
+            markAllChatNotificationsAsRead();
+        });
+    }
+    
+    // Load chat notifications
+    function loadChatNotifications() {
+        fetch('{{ route("chat.unread.count") }}')
+            .then(response => response.json())
+            .then(data => {
+                const notificationList = document.getElementById('notificationList');
+                
+                if (data.unread_count > 0) {
+                    notificationList.innerHTML = `
+                        <div class="notification-item unread">
+                            <div class="notification-content">
+                                <div class="notification-icon">
+                                    <i class="fas fa-comment"></i>
+                                </div>
+                                <div class="notification-details">
+                                    <div class="notification-message">
+                                        You have ${data.unread_count} unread message${data.unread_count !== 1 ? 's' : ''} in chats
+                                    </div>
+                                    <div class="notification-time">
+                                        Just now
+                                    </div>
                                 </div>
                             </div>
-                        `).join('');
-                    }
-                    userSearchResults.style.display = 'block';
+                        </div>
+                    `;
                     
-                    // Add click event to user results
-                    document.querySelectorAll('.user-result-item[data-user-id]').forEach(item => {
-                        item.addEventListener('click', function() {
-                            const userId = this.getAttribute('data-user-id');
-                            startChatUserId.value = userId;
-                            startChatForm.submit();
-                        });
-                    });
-                })
-                .catch(error => {
-                    console.error('Error searching users:', error);
-                });
-        }, 300);
-    });
+                    // Add specific chat notifications
+                    @foreach($chats as $chat)
+                        @if($chat->unread_count > 0)
+                            notificationList.innerHTML += `
+                                <div class="notification-item unread">
+                                    <div class="notification-content">
+                                        <div class="notification-icon">
+                                            {{ substr($chat->other_user->username, 0, 1) }}
+                                        </div>
+                                        <div class="notification-details">
+                                            <div class="notification-message">
+                                                {{ $chat->unread_count }} new message${ {{ $chat->unread_count }} !== 1 ? 's' : '' } from {{ $chat->other_user->username }}
+                                            </div>
+                                            <div class="notification-time">
+                                                {{ $chat->messages->first() ? $chat->messages->first()->created_at->diffForHumans() : '' }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        @endif
+                    @endforeach
+                } else {
+                    notificationList.innerHTML = `
+                        <div class="notification-empty">
+                            <i class="fas fa-bell-slash"></i>
+                            <p>No new chat notifications</p>
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Error loading notifications:', error);
+            });
+    }
     
-    // Hide search results when clicking outside
-    document.addEventListener('click', function(e) {
-        if (!userSearchInput.contains(e.target) && !userSearchResults.contains(e.target)) {
-            userSearchResults.style.display = 'none';
-        }
-    });
+    // Mark all chat notifications as read
+    function markAllChatNotificationsAsRead() {
+        fetch('{{ route("chat.mark.all.read") }}', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Reload the page to reflect changes
+                window.location.reload();
+            }
+        })
+        .catch(error => {
+            console.error('Error marking notifications as read:', error);
+        });
+    }
     
-    // Keep results visible when clicking on them
-    userSearchResults.addEventListener('click', function(e) {
-        e.stopPropagation();
-    });
+    // Load initial unread count for badge
+    function loadUnreadCount() {
+        fetch('{{ route("chat.unread.count") }}')
+            .then(response => response.json())
+            .then(data => {
+                if (notificationBadge) {
+                    notificationBadge.textContent = data.unread_count > 99 ? '99+' : data.unread_count;
+                    notificationBadge.style.display = data.unread_count > 0 ? 'flex' : 'none';
+                }
+            })
+            .catch(error => {
+                console.error('Error loading unread count:', error);
+            });
+    }
+    
+    // Load initial unread count
+    loadUnreadCount();
 });
 </script>
 @endsection

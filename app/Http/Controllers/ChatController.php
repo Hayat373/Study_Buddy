@@ -11,48 +11,64 @@ use Illuminate\Support\Facades\Auth;
 class ChatController extends Controller
 {
     public function index()
-    {
-        $user = Auth::user();
-        
-        // Get all chats for the user
-        $chats = Chat::where('user1_id', $user->id)
-                    ->orWhere('user2_id', $user->id)
-                    ->with(['user1', 'user2', 'messages' => function($query) {
-                        $query->latest()->limit(1);
-                    }])
-                    ->get()
-                    ->map(function($chat) use ($user) {
-                        $chat->other_user = $chat->user1_id == $user->id ? $chat->user2 : $chat->user1;
-                        $chat->unread_count = $chat->messages()
-                            ->where('sender_id', '!=', $user->id)
-                            ->where('is_read', false)
-                            ->count();
-                        return $chat;
-                    });
-        
-        return view('chat.index', compact('chats'));
-    }
+{
+    $user = Auth::user();
+    
+    // Get all chats for the user
+    $chats = Chat::where('user1_id', $user->id)
+                ->orWhere('user2_id', $user->id)
+                ->with(['user1', 'user2', 'messages' => function($query) {
+                    $query->latest()->limit(1);
+                }])
+                ->get()
+                ->map(function($chat) use ($user) {
+                    $chat->other_user = $chat->user1_id == $user->id ? $chat->user2 : $chat->user1;
+                    $chat->unread_count = $chat->messages()
+                        ->where('sender_id', '!=', $user->id)
+                        ->where('is_read', false)
+                        ->count();
+                    return $chat;
+                });
+    
+    return view('chat.index', compact('chats'));
+}
 
-    public function show(Chat $chat)
-    {
-        $user = Auth::user();
-        
-        // Check if user is part of this chat
-        if ($chat->user1_id != $user->id && $chat->user2_id != $user->id) {
-            abort(403, 'Unauthorized action.');
-        }
-        
-        $otherUser = $chat->user1_id == $user->id ? $chat->user2 : $chat->user1;
-        
-        // Mark messages as read
-        Message::where('chat_id', $chat->id)
-                ->where('sender_id', '!=', $user->id)
-                ->update(['is_read' => true]);
-        
-        $messages = $chat->messages()->with('sender')->latest()->paginate(20);
-        
-        return view('chat.show', compact('chat', 'otherUser', 'messages'));
+   public function show(Chat $chat)
+{
+    $user = Auth::user();
+    
+    // Check if user is part of this chat
+    if ($chat->user1_id != $user->id && $chat->user2_id != $user->id) {
+        abort(403, 'Unauthorized action.');
     }
+    
+    $otherUser = $chat->user1_id == $user->id ? $chat->user2 : $chat->user1;
+    
+    // Mark messages as read
+    Message::where('chat_id', $chat->id)
+            ->where('sender_id', '!=', $user->id)
+            ->update(['is_read' => true]);
+    
+    $messages = $chat->messages()->with('sender')->latest()->paginate(20);
+    
+    // Get all chats for the user to display in the sidebar
+    $chats = Chat::where('user1_id', $user->id)
+                ->orWhere('user2_id', $user->id)
+                ->with(['user1', 'user2', 'messages' => function($query) {
+                    $query->latest()->limit(1);
+                }])
+                ->get()
+                ->map(function($c) use ($user) {
+                    $c->other_user = $c->user1_id == $user->id ? $c->user2 : $c->user1;
+                    $c->unread_count = $c->messages()
+                        ->where('sender_id', '!=', $user->id)
+                        ->where('is_read', false)
+                        ->count();
+                    return $c;
+                });
+    
+    return view('chat.show', compact('chat', 'otherUser', 'messages', 'chats'));
+}
 
     public function storeMessage(Request $request, Chat $chat)
     {

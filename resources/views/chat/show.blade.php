@@ -4,7 +4,7 @@
 
 @section('styles')
 <style>
-/* Same styles as in index.blade.php */
+/* Chat Styles */
 .chat-container {
     display: flex;
     height: calc(100vh - 180px);
@@ -17,9 +17,15 @@
 }
 
 .chat-sidebar {
-    width: 320px;
+    width: 40%;
     border-right: 1px solid rgba(57, 183, 255, 0.1);
     background: rgba(10, 25, 41, 0.7);
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-main {
+    width: 60%;
     display: flex;
     flex-direction: column;
 }
@@ -30,12 +36,12 @@
     background: rgba(15, 30, 45, 0.8);
 }
 
-.chat-search {
+.user-search-container {
     position: relative;
     margin-bottom: 15px;
 }
 
-.chat-search input {
+.user-search-input {
     width: 100%;
     padding: 12px 15px 12px 45px;
     background: rgba(15, 30, 45, 0.6);
@@ -46,18 +52,74 @@
     transition: all 0.3s ease;
 }
 
-.chat-search input:focus {
+.user-search-input:focus {
     outline: none;
     border-color: rgba(57, 183, 255, 0.4);
     box-shadow: 0 0 0 3px rgba(57, 183, 255, 0.1);
 }
 
-.chat-search i {
+.user-search-icon {
     position: absolute;
     left: 15px;
     top: 50%;
     transform: translateY(-50%);
     color: rgba(57, 183, 255, 0.6);
+}
+
+.user-search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: rgba(15, 30, 45, 0.95);
+    border-radius: 8px;
+    border: 1px solid rgba(57, 183, 255, 0.2);
+    margin-top: 5px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+}
+
+.user-result-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.user-result-item:hover {
+    background: rgba(57, 183, 255, 0.1);
+}
+
+.user-result-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #39b7ff 0%, #2dc2ff 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+.user-result-info {
+    flex: 1;
+}
+
+.user-result-name {
+    font-weight: 600;
+    color: #dffbff;
+    margin-bottom: 2px;
+}
+
+.user-result-username {
+    font-size: 12px;
+    color: rgba(223, 251, 255, 0.7);
 }
 
 .chat-list {
@@ -142,12 +204,6 @@
     font-weight: 600;
     min-width: 20px;
     text-align: center;
-}
-
-.chat-main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
 }
 
 .chat-conversation {
@@ -300,6 +356,7 @@
     }
     
     .chat-main {
+        width: 100%;
         height: 60%;
     }
     
@@ -323,15 +380,13 @@
 
 <div class="chat-container">
     <div class="chat-sidebar">
-        {{-- Replace the chat-header section with this code --}}
-<div class="chat-header">
-    <div class="user-search-container">
-        <i class="fas fa-search user-search-icon"></i>
-        <input type="text" class="user-search-input" placeholder="Search users to chat with...">
-        <div class="user-search-results" id="userSearchResults"></div>
-    </div>
-</div>
-
+        <div class="chat-header">
+            <div class="user-search-container">
+                <i class="fas fa-search user-search-icon"></i>
+                <input type="text" class="user-search-input" placeholder="Search users to chat with...">
+                <div class="user-search-results" id="userSearchResults"></div>
+            </div>
+        </div>
         <div class="chat-list">
             @forelse($chats as $c)
             <a href="{{ route('chat.show', $c) }}" class="chat-item {{ $c->id == $chat->id ? 'active' : '' }}">
@@ -416,7 +471,6 @@
 </form>
 @endsection
 
-@section('scripts')
 @section('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {

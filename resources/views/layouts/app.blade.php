@@ -58,12 +58,13 @@
                   
                 </li>
                 <li class="nav-item">
-                    <a href="{{ route('chat.index') }}" class="nav-link {{ request()->routeIs('chat.*') ? 'active' : '' }}">
-                        <i class="fas fa-comments"></i>
-                        <span class="nav-text">Chat</span>
-                        <span class="nav-badge">3</span>
-                    </a>
-                </li>
+    <a href="{{ route('chat.index') }}" class="nav-link {{ request()->routeIs('chat.*') ? 'active' : '' }}">
+        <i class="fas fa-comments"></i>
+        <span class="nav-text">Chat</span>
+        <span class="nav-badge">3</span>
+    </a>
+</li>
+
                 <li class="nav-item">
                     <a href="{{ route('study-groups.index') }}" class="nav-link {{ request()->routeIs('study-groups.*') ? 'active' : '' }}">
                         <i class="fas fa-users"></i>

@@ -94,13 +94,13 @@ Route::prefix('quizzes')->group(function () {
     });
 
     // Chat Routes
-    Route::prefix('chat')->group(function () {
-        Route::get('/', [ChatController::class, 'index'])->name('chat.index');
-        Route::get('/{groupId}', [ChatController::class, 'show'])->name('chat.show');
-        Route::post('/{groupId}/message', [ChatController::class, 'sendMessage'])->name('chat.send.message');
-        Route::post('/{groupId}/join', [ChatController::class, 'joinGroup'])->name('chat.join');
-        Route::post('/{groupId}/leave', [ChatController::class, 'leaveGroup'])->name('chat.leave');
-    });
+    // Add these routes to your web.php file
+Route::prefix('chat')->group(function () {
+    Route::get('/', [ChatController::class, 'index'])->name('chat.index');
+    Route::get('/{chat}', [ChatController::class, 'show'])->name('chat.show');
+    Route::post('/{chat}/message', [ChatController::class, 'storeMessage'])->name('chat.message.store');
+    Route::get('/user/{user}', [ChatController::class, 'findOrCreate'])->name('chat.with.user');
+});
 
     // Study Group Routes
     Route::prefix('study-groups')->group(function () {

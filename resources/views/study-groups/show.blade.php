@@ -182,6 +182,52 @@
         flex-direction: column;
     }
 }
+
+/* Invitation styles */
+.share-link-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.share-link-container input {
+    flex: 1;
+    padding: 10px 12px;
+    border: 1px solid rgba(57, 183, 255, 0.2);
+    border-radius: 8px;
+    background: rgba(15, 30, 45, 0.5);
+    color: #dffbff;
+}
+
+.invitations-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.invitations-table th,
+.invitations-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid rgba(57, 183, 255, 0.1);
+}
+
+.invitations-table th {
+    color: #dffbff;
+    font-weight: 600;
+}
+
+.invitations-table td {
+    color: #a4d8e8;
+}
+
+.badge-warning {
+    background-color: rgba(255, 193, 7, 0.2);
+    color: #ffc107;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+}
 </style>
 @endsection
 
@@ -247,13 +293,13 @@
     
     @if($isMember || $studyGroup->is_public)
     <div class="tabs">
-        <button class="tab active" onclick="switchTab('members')">Members</button>
-        <button class="tab" onclick="switchTab('discussions')">Discussions</button>
-        <button class="tab" onclick="switchTab('resources')">Resources</button>
-        @if($isAdmin)
-        <button class="tab" onclick="switchTab('invitations')">Invitations</button>
-        @endif
-    </div>
+    <button class="tab active" onclick="switchTab('members')">Members</button>
+    <button class="tab" onclick="switchTab('discussions')">Discussions</button>
+    <button class="tab" onclick="switchTab('resources')">Resources</button>
+    @if($isAdmin)
+    <button class="tab" onclick="switchTab('invitations')">Invitations</button>
+    @endif
+</div>
     
     <div id="membersTab" class="tab-content active">
         <h2>Group Members</h2>
@@ -271,12 +317,39 @@
     </div>
     
     <div id="discussionsTab" class="tab-content">
-        <div class="empty-state">
-            <i class="fas fa-comments fa-3x" style="margin-bottom: 15px;"></i>
-            <h3>Discussions Coming Soon</h3>
-            <p>Group discussions feature will be available in the next update.</p>
-        </div>
+    <div class="section-header">
+        <h2>Group Discussions</h2>
+        <a href="{{ route('study-groups.discussions.index', $studyGroup->id) }}" class="btn btn-primary">
+            View All Discussions
+        </a>
     </div>
+
+     @if($recentDiscussions->count() > 0)
+    <div class="discussions-preview">
+        @foreach($recentDiscussions as $discussion)
+        <div class="discussion-item">
+            <h4>
+                <a href="{{ route('study-groups.discussions.show', [$studyGroup->id, $discussion->id]) }}">
+                    {{ $discussion->title }}
+                </a>
+            </h4>
+            <p class="discussion-meta">
+                By {{ $discussion->user->username }} • {{ $discussion->created_at->diffForHumans() }} •
+                {{ $discussion->replies_count }} replies
+            </p>
+        </div>
+        @endforeach
+    </div>
+    @else
+    <div class="empty-state">
+        <p>No discussions yet. Start the first one!</p>
+        <a href="{{ route('study-groups.discussions.create', $studyGroup->id) }}" class="btn btn-primary">
+            Start Discussion
+        </a>
+    </div>
+    @endif
+</div>
+
     
     <div id="resourcesTab" class="tab-content">
         <div class="empty-state">
@@ -284,7 +357,44 @@
             <h3>Resources Coming Soon</h3>
             <p>Group resources feature will be available in the next update.</p>
         </div>
+    </div><div id="resourcesTab" class="tab-content">
+    <div class="section-header">
+        <h2>Group Resources</h2>
+        <a href="{{ route('study-groups.resources.index', $studyGroup->id) }}" class="btn btn-primary">
+            View All Resources
+        </a>
     </div>
+
+     @if($recentResources->count() > 0)
+    <div class="resources-preview">
+        @foreach($recentResources as $resource)
+        <div class="resource-item">
+            <div class="resource-icon">
+                <i class="fas fa-file"></i>
+            </div>
+            <div class="resource-info">
+                <h4>{{ $resource->title }}</h4>
+                <p class="resource-meta">
+                    {{ $resource->file_name }} • {{ $resource->formatted_size }} •
+                    {{ $resource->download_count }} downloads
+                </p>
+            </div>
+            <a href="{{ route('study-groups.resources.download', [$studyGroup->id, $resource->id]) }}" 
+               class="btn btn-sm btn-primary">
+                <i class="fas fa-download"></i>
+            </a>
+        </div>
+        @endforeach
+    </div>
+    @else
+    <div class="empty-state">
+        <p>No resources shared yet.</p>
+        <a href="{{ route('study-groups.resources.create', $studyGroup->id) }}" class="btn btn-primary">
+            Share Resource
+        </a>
+    </div>
+    @endif
+</div>
     
     @if($isAdmin)
     <div id="invitationsTab" class="tab-content">
@@ -325,6 +435,78 @@
     </div>
     @endif
 </div>
+{{-- ... existing code ... --}}
+
+@if($isAdmin)
+<div id="invitationsTab" class="tab-content">
+    <div class="invite-section">
+        <h2>Invite Members</h2>
+        <form action="{{ route('study-groups.invite', $studyGroup->id) }}" method="POST" class="invite-form">
+            @csrf
+            <div class="form-group">
+                <label>Invite by Email:</label>
+                <input type="email" name="emails[]" placeholder="Enter email address" required>
+                <small>Enter multiple emails separated by commas</small>
+            </div>
+            <div class="form-group">
+                <label>Or share this invite link:</label>
+                <div class="share-link-container">
+                    <input type="text" id="inviteLink" value="{{ route('study-groups.invitation.accept', ['token' => $studyGroup->join_code]) }}" readonly>
+                    <button type="button" onclick="copyInviteLink()" class="btn btn-secondary">
+                        <i class="fas fa-copy"></i> Copy Link
+                    </button>
+                </div>
+                <small>Share this link with anyone you want to invite to this group</small>
+            </div>
+            <button type="submit" class="btn btn-primary">Send Invitations</button>
+        </form>
+    </div>
+    
+    <h2>Pending Invitations</h2>
+    @if($pendingInvitations->count() > 0)
+    <div class="table-responsive">
+        <table class="invitations-table">
+            <thead>
+                <tr>
+                    <th>Email</th>
+                    <th>Invited By</th>
+                    <th>Sent At</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($pendingInvitations as $invitation)
+                <tr>
+                    <td>{{ $invitation->email }}</td>
+                    <td>{{ $invitation->inviter->username }}</td>
+                    <td>{{ $invitation->created_at->format('M d, Y H:i') }}</td>
+                    <td>
+                        <span class="badge badge-warning">Pending</span>
+                    </td>
+                    <td>
+                        <form action="{{ route('study-groups.invitation.cancel', $invitation->id) }}" method="POST">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Cancel this invitation?')">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+    @else
+    <div class="empty-state">
+        <p>No pending invitations</p>
+    </div>
+    @endif
+</div>
+@endif
+
+
 @endsection
 
 @section('scripts')
@@ -431,5 +613,12 @@ document.querySelector('.invite-form')?.addEventListener('submit', function(e) {
         submitBtn.textContent = originalText;
     });
 });
+
+function copyInviteLink() {
+    const inviteLink = document.getElementById('inviteLink');
+    inviteLink.select();
+    document.execCommand('copy');
+    showToast('Invite link copied to clipboard!', 'success');
+}
 </script>
 @endsection

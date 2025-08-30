@@ -36,7 +36,7 @@ class StudyGroupController extends Controller
     return view('study-groups.index', compact('userGroups', 'publicGroups'));
 }
 
-    public function show($id)
+  public function show($id)
 {
     $studyGroup = StudyGroup::with(['creator', 'members.user'])->withCount('members')->findOrFail($id);
     $user = Auth::user();
@@ -55,7 +55,23 @@ class StudyGroupController extends Controller
         ->whereNull('declined_at')
         ->get();
 
-    return view('study-groups.show', compact('studyGroup', 'isMember', 'isAdmin', 'members', 'pendingInvitations'));
+    // Get recent discussions
+    $recentDiscussions = \App\Models\Discussion::with(['user', 'replies'])
+        ->where('study_group_id', $id)
+        ->orderBy('created_at', 'desc')
+        ->limit(5)
+        ->get();
+
+    // Get recent resources
+    $recentResources = \App\Models\Resource::where('study_group_id', $id)
+        ->orderBy('created_at', 'desc')
+        ->limit(5)
+        ->get();
+
+    return view('study-groups.show', compact(
+        'studyGroup', 'isMember', 'isAdmin', 'members', 
+        'pendingInvitations', 'recentDiscussions', 'recentResources'
+    ));
 }
 
 // Add this method for the edit form

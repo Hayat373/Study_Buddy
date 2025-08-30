@@ -119,10 +119,36 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/study-groups/{id}/leave', [StudyGroupController::class, 'leave'])->name('study-groups.leave');
     
     // Study Group Invitations
-    Route::post('/study-groups/{groupId}/invite', [StudyGroupInvitationController::class, 'invite'])->name('study-groups.invite');
-    Route::get('/study-groups/invitations/{token}/accept', [StudyGroupInvitationController::class, 'accept'])->name('study-groups.invitation.accept');
-    Route::get('/study-groups/invitations/{token}/decline', [StudyGroupInvitationController::class, 'decline'])->name('study-groups.invitation.decline');
+Route::post('/study-groups/{groupId}/invite', [StudyGroupInvitationController::class, 'invite'])->name('study-groups.invite');
+Route::get('/study-groups/invitations/{token}/accept', [StudyGroupInvitationController::class, 'accept'])->name('study-groups.invitation.accept');
+Route::get('/study-groups/invitations/{token}/decline', [StudyGroupInvitationController::class, 'decline'])->name('study-groups.invitation.decline');
+Route::get('/study-groups/{groupId}/invitations', [StudyGroupInvitationController::class, 'pendingInvitations'])->name('study-groups.invitations.pending');
+
 });
+
+// Discussions Routes
+Route::prefix('study-groups/{groupId}')->group(function () {
+    Route::get('/discussions', [DiscussionController::class, 'index'])->name('study-groups.discussions.index');
+    Route::get('/discussions/create', [DiscussionController::class, 'create'])->name('study-groups.discussions.create');
+    Route::post('/discussions', [DiscussionController::class, 'store'])->name('study-groups.discussions.store');
+    Route::get('/discussions/{discussionId}', [DiscussionController::class, 'show'])->name('study-groups.discussions.show');
+    Route::post('/discussions/{discussionId}/pin', [DiscussionController::class, 'pin'])->name('study-groups.discussions.pin');
+    Route::delete('/discussions/{discussionId}', [DiscussionController::class, 'destroy'])->name('study-groups.discussions.destroy');
+    
+    // Discussion Replies
+    Route::post('/discussions/{discussionId}/replies', [DiscussionReplyController::class, 'store'])->name('study-groups.discussions.replies.store');
+    Route::delete('/discussions/{discussionId}/replies/{replyId}', [DiscussionReplyController::class, 'destroy'])->name('study-groups.discussions.replies.destroy');
+    
+    // Resources Routes
+    Route::get('/resources', [ResourceController::class, 'index'])->name('study-groups.resources.index');
+    Route::get('/resources/create', [ResourceController::class, 'create'])->name('study-groups.resources.create');
+    Route::post('/resources', [ResourceController::class, 'store'])->name('study-groups.resources.store');
+    Route::get('/resources/{resourceId}/download', [ResourceController::class, 'download'])->name('study-groups.resources.download');
+    Route::delete('/resources/{resourceId}', [ResourceController::class, 'destroy'])->name('study-groups.resources.destroy');
+});
+
+
+
     // User Profile Routes
     Route::prefix('profile')->group(function () {
         Route::get('/', function () {

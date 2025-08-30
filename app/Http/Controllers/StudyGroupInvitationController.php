@@ -18,7 +18,7 @@ class StudyGroupInvitationController extends Controller
         
         // Check if user is admin of the group
         if (!$studyGroup->isAdmin(Auth::id())) {
-            return response()->json(['message' => 'Only group admins can invite members'], 403);
+            return redirect()->back()->with('error', 'Only group admins can invite members.');
         }
 
         $request->validate([
@@ -57,21 +57,24 @@ class StudyGroupInvitationController extends Controller
                 'token' => bin2hex(random_bytes(16))
             ]);
             
-            // Send email notification
+            // Send email notification (you can uncomment this when you set up mail)
+            /*
             try {
                 Mail::to($email)->send(new InvitationMail($invitation, $studyGroup, Auth::user()));
             } catch (\Exception $e) {
                 // Log error but continue processing other invitations
                 \Log::error('Failed to send invitation email: ' . $e->getMessage());
             }
+            */
             
             $invitations[] = $invitation;
         }
 
-        return response()->json([
-            'message' => 'Invitations sent successfully',
-            'invitations' => $invitations
-        ]);
+        if (count($invitations) > 0) {
+            return redirect()->back()->with('success', 'Invitations sent successfully.');
+        } else {
+            return redirect()->back()->with('info', 'No new invitations were sent. Users may already be members or have pending invitations.');
+        }
     }
 
     public function accept(Request $request, $token)
@@ -80,24 +83,27 @@ class StudyGroupInvitationController extends Controller
         
         // Check if invitation is already accepted or declined
         if ($invitation->accepted_at || $invitation->declined_at) {
-            return response()->json(['message' => 'This invitation has already been processed'], 400);
+            return redirect()->route('study-groups.show', $invitation->study_group_id)
+                ->with('error', 'This invitation has already been processed.');
         }
         
         $studyGroup = $invitation->studyGroup;
         
         // Check if user is logged in and matches the invitation email
         if (Auth::check() && Auth::user()->email !== $invitation->email) {
-            return response()->json(['message' => 'This invitation is not for your account'], 403);
+            return redirect()->route('study-groups.show', $invitation->study_group_id)
+                ->with('error', 'This invitation is not for your account.');
         }
         
         // If user is not logged in, require them to log in first
         if (!Auth::check()) {
-            return response()->json(['message' => 'Please log in to accept the invitation'], 401);
+            return redirect()->route('login')->with('error', 'Please log in to accept the invitation.');
         }
         
         // Check if group has reached max members
         if ($studyGroup->members()->count() >= $studyGroup->max_members) {
-            return response()->json(['message' => 'This group has reached maximum members'], 403);
+            return redirect()->route('study-groups.show', $invitation->study_group_id)
+                ->with('error', 'This group has reached maximum members.');
         }
         
         // Add user to group
@@ -109,7 +115,8 @@ class StudyGroupInvitationController extends Controller
         // Mark invitation as accepted
         $invitation->update(['accepted_at' => now()]);
         
-        return response()->json(['message' => 'Successfully joined the study group']);
+        return redirect()->route('study-groups.show', $invitation->study_group_id)
+            ->with('success', 'Successfully joined the study group!');
     }
 
     public function decline(Request $request, $token)
@@ -118,13 +125,15 @@ class StudyGroupInvitationController extends Controller
         
         // Check if invitation is already accepted or declined
         if ($invitation->accepted_at || $invitation->declined_at) {
-            return response()->json(['message' => 'This invitation has already been processed'], 400);
+            return redirect()->route('study-groups.show', $invitation->study_group_id)
+                ->with('error', 'This invitation has already been processed.');
         }
         
         // Mark invitation as declined
         $invitation->update(['declined_at' => now()]);
         
-        return response()->json(['message' => 'Invitation declined']);
+        return redirect()->route('study-groups.index')
+            ->with('info', 'Invitation declined.');
     }
 
     public function pendingInvitations($groupId)
@@ -133,7 +142,7 @@ class StudyGroupInvitationController extends Controller
         
         // Check if user is admin of the group
         if (!$studyGroup->isAdmin(Auth::id())) {
-            return response()->json(['message' => 'Only group admins can view invitations'], 403);
+            return redirect()->back()->with('error', 'Only group admins can view invitations.');
         }
         
         $invitations = $studyGroup->invitations()
@@ -142,6 +151,6 @@ class StudyGroupInvitationController extends Controller
             ->with('inviter')
             ->get();
             
-        return response()->json($invitations);
+        return view('study-groups.invitations', compact('studyGroup', 'invitations'));
     }
 }

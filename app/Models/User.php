@@ -43,4 +43,45 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    
+
+   
+   
+
+     /**
+     * Get the study groups that the user belongs to.
+     */
+    public function studyGroups()
+    {
+        return $this->belongsToMany(StudyGroup::class, 'study_group_members')
+                    ->withPivot('role')
+                    ->withTimestamps();
+    }
+
+    /**
+     * Get the study groups created by the user.
+     */
+    public function createdStudyGroups()
+    {
+        return $this->hasMany(StudyGroup::class, 'created_by');
+    }
+
+    /**
+     * Get the study group memberships.
+     */
+    public function studyGroupMembers()
+    {
+        return $this->hasMany(StudyGroupMember::class);
+    }
+
+    /**
+     * Get the study group invitations for the user.
+     */
+    public function studyGroupInvitations()
+    {
+        return $this->hasMany(StudyGroupInvitation::class);
+    }
+
+
 }

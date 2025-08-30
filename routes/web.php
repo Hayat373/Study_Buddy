@@ -106,19 +106,23 @@ Route::get('/unread-count', [ChatController::class, 'getUnreadCount'])->name('ch
 Route::post('/mark-all-read', [ChatController::class, 'markAllAsRead'])->name('chat.mark.all.read');
 });
 
-    // Study Group Routes
-    Route::prefix('study-groups')->group(function () {
-        Route::get('/', [StudyGroupController::class, 'index'])->name('study-groups.index');
-        Route::get('/create', [StudyGroupController::class, 'create'])->name('study-groups.create');
-        Route::post('/', [StudyGroupController::class, 'store'])->name('study-groups.store');
-        Route::get('/{id}', [StudyGroupController::class, 'show'])->name('study-groups.show');
-        Route::get('/{id}/edit', [StudyGroupController::class, 'edit'])->name('study-groups.edit');
-        Route::put('/{id}', [StudyGroupController::class, 'update'])->name('study-groups.update');
-        Route::delete('/{id}', [StudyGroupController::class, 'destroy'])->name('study-groups.destroy');
-        Route::post('/{id}/join', [StudyGroupController::class, 'join'])->name('study-groups.join');
-        Route::post('/{id}/leave', [StudyGroupController::class, 'leave'])->name('study-groups.leave');
-    });
-
+   // Study Groups Web Routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/study-groups', [StudyGroupController::class, 'index'])->name('study-groups.index');
+    Route::post('/study-groups', [StudyGroupController::class, 'store'])->name('study-groups.store');
+    Route::get('/study-groups/create', [StudyGroupController::class, 'create'])->name('study-groups.create');
+    Route::get('/study-groups/{id}', [StudyGroupController::class, 'show'])->name('study-groups.show');
+    Route::get('/study-groups/{id}/edit', [StudyGroupController::class, 'edit'])->name('study-groups.edit');
+    Route::put('/study-groups/{id}', [StudyGroupController::class, 'update'])->name('study-groups.update');
+    Route::delete('/study-groups/{id}', [StudyGroupController::class, 'destroy'])->name('study-groups.destroy');
+    Route::post('/study-groups/{id}/join', [StudyGroupController::class, 'join'])->name('study-groups.join');
+    Route::post('/study-groups/{id}/leave', [StudyGroupController::class, 'leave'])->name('study-groups.leave');
+    
+    // Study Group Invitations
+    Route::post('/study-groups/{groupId}/invite', [StudyGroupInvitationController::class, 'invite'])->name('study-groups.invite');
+    Route::get('/study-groups/invitations/{token}/accept', [StudyGroupInvitationController::class, 'accept'])->name('study-groups.invitation.accept');
+    Route::get('/study-groups/invitations/{token}/decline', [StudyGroupInvitationController::class, 'decline'])->name('study-groups.invitation.decline');
+});
     // User Profile Routes
     Route::prefix('profile')->group(function () {
         Route::get('/', function () {

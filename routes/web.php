@@ -150,6 +150,9 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/resources/{resourceId}/download', [ResourceController::class, 'download'])->name('study-groups.resources.download');
             Route::delete('/resources/{resourceId}', [ResourceController::class, 'destroy'])->name('study-groups.resources.destroy');
         });
+
+        // Add this route inside your study-groups prefix group
+Route::delete('/invitations/{invitationId}', [StudyGroupInvitationController::class, 'cancel'])->name('study-groups.invitation.cancel');
     });
 
     // User Profile Routes

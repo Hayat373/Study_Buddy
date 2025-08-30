@@ -153,4 +153,25 @@ class StudyGroupInvitationController extends Controller
             
         return view('study-groups.invitations', compact('studyGroup', 'invitations'));
     }
+
+    public function cancel($invitationId)
+{
+    $invitation = StudyGroupInvitation::findOrFail($invitationId);
+    $studyGroup = $invitation->studyGroup;
+    
+    // Check if user is admin of the group
+    if (!$studyGroup->isAdmin(Auth::id())) {
+        return redirect()->back()->with('error', 'Only group admins can cancel invitations.');
+    }
+    
+    // Check if invitation is already accepted or declined
+    if ($invitation->accepted_at || $invitation->declined_at) {
+        return redirect()->back()->with('error', 'This invitation has already been processed.');
+    }
+    
+    $invitation->delete();
+    
+    return redirect()->back()->with('success', 'Invitation cancelled successfully.');
+}
+
 }

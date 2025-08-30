@@ -148,17 +148,31 @@ public function startChat(Request $request)
 
 public function getUnreadCount()
 {
-    $user = Auth::user();
-    
-    $unreadCount = Message::whereHas('chat', function($query) use ($user) {
-            $query->where('user1_id', $user->id)
-                  ->orWhere('user2_id', $user->id);
-        })
-        ->where('sender_id', '!=', $user->id)
-        ->where('is_read', false)
-        ->count();
-    
-    return response()->json(['unread_count' => $unreadCount]);
+    try {
+        // Check if user is authenticated
+        if (!Auth::check()) {
+            return response()->json(['unread_count' => 0]);
+        }
+        
+        $user = Auth::user();
+        
+        $unreadCount = Message::whereHas('chat', function($query) use ($user) {
+                $query->where('user1_id', $user->id)
+                      ->orWhere('user2_id', $user->id);
+            })
+            ->where('sender_id', '!=', $user->id)
+            ->where('is_read', false)
+            ->count();
+        
+        return response()->json(['unread_count' => $unreadCount]);
+        
+    } catch (\Exception $e) {
+        // Log the error
+        \Log::error('Error in getUnreadCount: ' . $e->getMessage());
+        
+        // Return a safe default value
+        return response()->json(['unread_count' => 0]);
+    }
 }
 
 public function markAllAsRead()

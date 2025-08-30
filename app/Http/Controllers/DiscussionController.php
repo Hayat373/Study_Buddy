@@ -12,6 +12,13 @@ class DiscussionController extends Controller
     public function index($groupId)
     {
         $studyGroup = StudyGroup::findOrFail($groupId);
+        
+        // Check if user is member (unless group is public)
+        if (!$studyGroup->is_public && !$studyGroup->isMember(Auth::id())) {
+            return redirect()->route('study-groups.show', $studyGroup->id)
+                ->with('error', 'You must be a member to view discussions.');
+        }
+
         $discussions = Discussion::with(['user', 'replies.user'])
             ->where('study_group_id', $groupId)
             ->orderBy('is_pinned', 'desc')
@@ -24,6 +31,13 @@ class DiscussionController extends Controller
     public function create($groupId)
     {
         $studyGroup = StudyGroup::findOrFail($groupId);
+        
+        // Check if user is member (unless group is public)
+        if (!$studyGroup->is_public && !$studyGroup->isMember(Auth::id())) {
+            return redirect()->route('study-groups.show', $studyGroup->id)
+                ->with('error', 'You must be a member to create discussions.');
+        }
+
         return view('study-groups.discussions.create', compact('studyGroup'));
     }
 
@@ -35,6 +49,12 @@ class DiscussionController extends Controller
         ]);
 
         $studyGroup = StudyGroup::findOrFail($groupId);
+        
+        // Check if user is member (unless group is public)
+        if (!$studyGroup->is_public && !$studyGroup->isMember(Auth::id())) {
+            return redirect()->route('study-groups.show', $studyGroup->id)
+                ->with('error', 'You must be a member to create discussions.');
+        }
 
         Discussion::create([
             'study_group_id' => $studyGroup->id,
@@ -50,9 +70,18 @@ class DiscussionController extends Controller
     public function show($groupId, $discussionId)
     {
         $studyGroup = StudyGroup::findOrFail($groupId);
+        
+        // Check if user is member (unless group is public)
+        if (!$studyGroup->is_public && !$studyGroup->isMember(Auth::id())) {
+            return redirect()->route('study-groups.show', $studyGroup->id)
+                ->with('error', 'You must be a member to view discussions.');
+        }
+
         $discussion = Discussion::with(['user', 'allReplies.user', 'allReplies.replies.user'])
             ->where('study_group_id', $groupId)
             ->findOrFail($discussionId);
+
+        // Increment view count or add other tracking if needed
 
         return view('study-groups.discussions.show', compact('studyGroup', 'discussion'));
     }

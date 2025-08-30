@@ -10,6 +10,13 @@ use App\Http\Controllers\ChatController;
 use App\Http\Controllers\StudyGroupController;
 use App\Http\Controllers\VideoCallController;
 use App\Http\Controllers\StudySessionController;
+
+// Add these new import statements
+use App\Http\Controllers\DiscussionController;
+use App\Http\Controllers\DiscussionReplyController;
+use App\Http\Controllers\ResourceController;
+use App\Http\Controllers\StudyGroupInvitationController;
+
 use Illuminate\Http\Request;
 
 Route::get('/', function () {
@@ -49,7 +56,7 @@ Route::middleware(['auth'])->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     
-    // Flashcard Routes - Use either resource OR individual routes, not both
+    // Flashcard Routes
     Route::prefix('flashcards')->group(function () {
         Route::get('/', [FlashcardController::class, 'index'])->name('flashcards.index');
         Route::get('/create', [FlashcardController::class, 'create'])->name('flashcards.create');
@@ -74,18 +81,18 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/{id}/join', [StudySessionController::class, 'join'])->name('study-sessions.join');
     });
 
-   // Quiz Routes
-Route::prefix('quizzes')->group(function () {
-    Route::get('/', [QuizController::class, 'index'])->name('quizzes.index');
-    Route::get('/create/{setId}', [QuizController::class, 'create'])->name('quizzes.create');
-    Route::post('/store/{setId}', [QuizController::class, 'store'])->name('quizzes.store');
-    Route::get('/{id}', [QuizController::class, 'show'])->name('quizzes.show');
-    Route::get('/{id}/edit', [QuizController::class, 'edit'])->name('quizzes.edit');
-    Route::put('/{id}', [QuizController::class, 'update'])->name('quizzes.update');
-    Route::delete('/{id}', [QuizController::class, 'destroy'])->name('quizzes.destroy'); // Add this
-    Route::get('/attempts/{attemptId}/results', [QuizController::class, 'getResults'])->name('quizzes.results');
-    Route::get('/quiz/history', [QuizController::class, 'history'])->name('quiz.history');
-});
+    // Quiz Routes
+    Route::prefix('quizzes')->group(function () {
+        Route::get('/', [QuizController::class, 'index'])->name('quizzes.index');
+        Route::get('/create/{setId}', [QuizController::class, 'create'])->name('quizzes.create');
+        Route::post('/store/{setId}', [QuizController::class, 'store'])->name('quizzes.store');
+        Route::get('/{id}', [QuizController::class, 'show'])->name('quizzes.show');
+        Route::get('/{id}/edit', [QuizController::class, 'edit'])->name('quizzes.edit');
+        Route::put('/{id}', [QuizController::class, 'update'])->name('quizzes.update');
+        Route::delete('/{id}', [QuizController::class, 'destroy'])->name('quizzes.destroy');
+        Route::get('/attempts/{attemptId}/results', [QuizController::class, 'getResults'])->name('quizzes.results');
+        Route::get('/quiz/history', [QuizController::class, 'history'])->name('quiz.history');
+    });
 
     // Video Call Routes
     Route::prefix('video-calls')->group(function () {
@@ -94,60 +101,56 @@ Route::prefix('quizzes')->group(function () {
     });
 
     // Chat Routes
-    // Add these routes to your web.php file
-Route::prefix('chat')->group(function () {
-    Route::get('/', [ChatController::class, 'index'])->name('chat.index');
-    Route::get('/{chat}', [ChatController::class, 'show'])->name('chat.show');
-    Route::post('/{chat}/message', [ChatController::class, 'storeMessage'])->name('chat.message.store');
-    Route::get('/user/{user}', [ChatController::class, 'findOrCreate'])->name('chat.with.user');
-    Route::get('/users/search', [ChatController::class, 'userSearch'])->name('chat.users.search');
-Route::post('/start', [ChatController::class, 'startChat'])->name('chat.start');
-Route::get('/unread-count', [ChatController::class, 'getUnreadCount'])->name('chat.unread.count');
-Route::post('/mark-all-read', [ChatController::class, 'markAllAsRead'])->name('chat.mark.all.read');
-});
+    Route::prefix('chat')->group(function () {
+        Route::get('/', [ChatController::class, 'index'])->name('chat.index');
+        Route::get('/{chat}', [ChatController::class, 'show'])->name('chat.show');
+        Route::post('/{chat}/message', [ChatController::class, 'storeMessage'])->name('chat.message.store');
+        Route::get('/user/{user}', [ChatController::class, 'findOrCreate'])->name('chat.with.user');
+        Route::get('/users/search', [ChatController::class, 'userSearch'])->name('chat.users.search');
+        Route::post('/start', [ChatController::class, 'startChat'])->name('chat.start');
+        Route::get('/unread-count', [ChatController::class, 'getUnreadCount'])->name('chat.unread.count');
+        Route::post('/mark-all-read', [ChatController::class, 'markAllAsRead'])->name('chat.mark.all.read');
+    });
 
-   // Study Groups Web Routes
-Route::middleware(['auth'])->group(function () {
-    Route::get('/study-groups', [StudyGroupController::class, 'index'])->name('study-groups.index');
-    Route::post('/study-groups', [StudyGroupController::class, 'store'])->name('study-groups.store');
-    Route::get('/study-groups/create', [StudyGroupController::class, 'create'])->name('study-groups.create');
-    Route::get('/study-groups/{id}', [StudyGroupController::class, 'show'])->name('study-groups.show');
-    Route::get('/study-groups/{id}/edit', [StudyGroupController::class, 'edit'])->name('study-groups.edit');
-    Route::put('/study-groups/{id}', [StudyGroupController::class, 'update'])->name('study-groups.update');
-    Route::delete('/study-groups/{id}', [StudyGroupController::class, 'destroy'])->name('study-groups.destroy');
-    Route::post('/study-groups/{id}/join', [StudyGroupController::class, 'join'])->name('study-groups.join');
-    Route::post('/study-groups/{id}/leave', [StudyGroupController::class, 'leave'])->name('study-groups.leave');
-    
-    // Study Group Invitations
-Route::post('/study-groups/{groupId}/invite', [StudyGroupInvitationController::class, 'invite'])->name('study-groups.invite');
-Route::get('/study-groups/invitations/{token}/accept', [StudyGroupInvitationController::class, 'accept'])->name('study-groups.invitation.accept');
-Route::get('/study-groups/invitations/{token}/decline', [StudyGroupInvitationController::class, 'decline'])->name('study-groups.invitation.decline');
-Route::get('/study-groups/{groupId}/invitations', [StudyGroupInvitationController::class, 'pendingInvitations'])->name('study-groups.invitations.pending');
+    // Study Groups Routes
+    Route::prefix('study-groups')->group(function () {
+        Route::get('/', [StudyGroupController::class, 'index'])->name('study-groups.index');
+        Route::post('/', [StudyGroupController::class, 'store'])->name('study-groups.store');
+        Route::get('/create', [StudyGroupController::class, 'create'])->name('study-groups.create');
+        Route::get('/{id}', [StudyGroupController::class, 'show'])->name('study-groups.show');
+        Route::get('/{id}/edit', [StudyGroupController::class, 'edit'])->name('study-groups.edit');
+        Route::put('/{id}', [StudyGroupController::class, 'update'])->name('study-groups.update');
+        Route::delete('/{id}', [StudyGroupController::class, 'destroy'])->name('study-groups.destroy');
+        Route::post('/{id}/join', [StudyGroupController::class, 'join'])->name('study-groups.join');
+        Route::post('/{id}/leave', [StudyGroupController::class, 'leave'])->name('study-groups.leave');
+        
+        // Study Group Invitations
+        Route::post('/{groupId}/invite', [StudyGroupInvitationController::class, 'invite'])->name('study-groups.invite');
+        Route::get('/invitations/{token}/accept', [StudyGroupInvitationController::class, 'accept'])->name('study-groups.invitation.accept');
+        Route::get('/invitations/{token}/decline', [StudyGroupInvitationController::class, 'decline'])->name('study-groups.invitation.decline');
+        Route::get('/{groupId}/invitations', [StudyGroupInvitationController::class, 'pendingInvitations'])->name('study-groups.invitations.pending');
 
-});
-
-// Discussions Routes
-Route::prefix('study-groups/{groupId}')->group(function () {
-    Route::get('/discussions', [DiscussionController::class, 'index'])->name('study-groups.discussions.index');
-    Route::get('/discussions/create', [DiscussionController::class, 'create'])->name('study-groups.discussions.create');
-    Route::post('/discussions', [DiscussionController::class, 'store'])->name('study-groups.discussions.store');
-    Route::get('/discussions/{discussionId}', [DiscussionController::class, 'show'])->name('study-groups.discussions.show');
-    Route::post('/discussions/{discussionId}/pin', [DiscussionController::class, 'pin'])->name('study-groups.discussions.pin');
-    Route::delete('/discussions/{discussionId}', [DiscussionController::class, 'destroy'])->name('study-groups.discussions.destroy');
-    
-    // Discussion Replies
-    Route::post('/discussions/{discussionId}/replies', [DiscussionReplyController::class, 'store'])->name('study-groups.discussions.replies.store');
-    Route::delete('/discussions/{discussionId}/replies/{replyId}', [DiscussionReplyController::class, 'destroy'])->name('study-groups.discussions.replies.destroy');
-    
-    // Resources Routes
-    Route::get('/resources', [ResourceController::class, 'index'])->name('study-groups.resources.index');
-    Route::get('/resources/create', [ResourceController::class, 'create'])->name('study-groups.resources.create');
-    Route::post('/resources', [ResourceController::class, 'store'])->name('study-groups.resources.store');
-    Route::get('/resources/{resourceId}/download', [ResourceController::class, 'download'])->name('study-groups.resources.download');
-    Route::delete('/resources/{resourceId}', [ResourceController::class, 'destroy'])->name('study-groups.resources.destroy');
-});
-
-
+        // Discussions Routes
+        Route::prefix('{groupId}')->group(function () {
+            Route::get('/discussions', [DiscussionController::class, 'index'])->name('study-groups.discussions.index');
+            Route::get('/discussions/create', [DiscussionController::class, 'create'])->name('study-groups.discussions.create');
+            Route::post('/discussions', [DiscussionController::class, 'store'])->name('study-groups.discussions.store');
+            Route::get('/discussions/{discussionId}', [DiscussionController::class, 'show'])->name('study-groups.discussions.show');
+            Route::post('/discussions/{discussionId}/pin', [DiscussionController::class, 'pin'])->name('study-groups.discussions.pin');
+            Route::delete('/discussions/{discussionId}', [DiscussionController::class, 'destroy'])->name('study-groups.discussions.destroy');
+            
+            // Discussion Replies
+            Route::post('/discussions/{discussionId}/replies', [DiscussionReplyController::class, 'store'])->name('study-groups.discussions.replies.store');
+            Route::delete('/discussions/{discussionId}/replies/{replyId}', [DiscussionReplyController::class, 'destroy'])->name('study-groups.discussions.replies.destroy');
+            
+            // Resources Routes
+            Route::get('/resources', [ResourceController::class, 'index'])->name('study-groups.resources.index');
+            Route::get('/resources/create', [ResourceController::class, 'create'])->name('study-groups.resources.create');
+            Route::post('/resources', [ResourceController::class, 'store'])->name('study-groups.resources.store');
+            Route::get('/resources/{resourceId}/download', [ResourceController::class, 'download'])->name('study-groups.resources.download');
+            Route::delete('/resources/{resourceId}', [ResourceController::class, 'destroy'])->name('study-groups.resources.destroy');
+        });
+    });
 
     // User Profile Routes
     Route::prefix('profile')->group(function () {
@@ -166,9 +169,9 @@ Route::prefix('study-groups/{groupId}')->group(function () {
     });
     
     // Settings Routes
-Route::get('/settings', function () {
-    return view('settings');
-})->name('settings.index')->middleware('auth'); // ← Add ->name('settings.index')
+    Route::get('/settings', function () {
+        return view('settings');
+    })->name('settings.index');
 });
 
 // Fallback route for undefined routes

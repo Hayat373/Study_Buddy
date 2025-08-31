@@ -244,5 +244,15 @@ public function login(Request $request)
         return sqrt($sum);
     }
 
+    // Add this method to your existing AuthController
+public function logout(Request $request)
+{
+    Auth::logout();
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+    
+    return redirect('/')->with('success', 'You have been logged out successfully.');
+}
+
 
 }

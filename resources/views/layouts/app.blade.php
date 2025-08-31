@@ -96,9 +96,13 @@
                         <span class="user-role">Student</span>
                     </div>
                 </div>
-                <a href="{{ route('logout') }}" class="logout-btn">
-                    <i class="fas fa-sign-out-alt"></i>
-                </a>
+                <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+    @csrf
+    <button type="submit" class="logout-btn" style="background: none; border: none; cursor: pointer;">
+        <i class="fas fa-sign-out-alt"></i>
+    </button>
+</form>
+
             </div>
         </aside>
 

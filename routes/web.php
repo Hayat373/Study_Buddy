@@ -198,4 +198,6 @@ Route::prefix('settings')->group(function () {
     Route::post('/logout', [SettingsController::class, 'logout'])->name('logout');
 });
 
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
 require __DIR__.'/auth.php';

@@ -14,7 +14,10 @@ class RealTimeDashboard {
     loadRealTimeStats() {
         fetch('/api/dashboard/stats')
             .then(response => response.json())
-            .then(data => this.updateStats(data))
+            .then(data => {
+                this.updateStats(data);
+                this.updateScheduleCount(data.todaySchedulesCount);
+            })
             .catch(error => console.error('Error loading stats:', error));
     }
 
@@ -43,6 +46,18 @@ class RealTimeDashboard {
             this.animateValue(streakElement, parseInt(streakElement.textContent), data.currentStreak, 1000);
         }
     }
+
+    updateScheduleCount(count) {
+        if (this.scheduleCountElement) {
+            const text = this.scheduleCountElement.textContent;
+            const newText = text.replace(
+                /You have \d+ schedule(s?) today/, 
+                `You have ${count} schedule${count !== 1 ? 's' : ''} today`
+            );
+            this.scheduleCountElement.textContent = newText;
+        }
+    }
+    
 
     animateValue(element, start, end, duration) {
         const range = end - start;

@@ -199,5 +199,6 @@ Route::prefix('settings')->group(function () {
 });
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::post('/study-session/start', [StudySessionController::class, 'start'])->name('study-session.start');
 
 require __DIR__.'/auth.php';

@@ -808,3 +808,46 @@
 }
 
 }
+
+/* Schedule-specific styles for dashboard */
+.session-type {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.start-session-btn {
+    transition: all 0.3s ease;
+}
+
+.start-session-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(45, 194, 255, 0.3);
+}
+
+/* Color coding for different schedule types */
+.session-item[data-type="exam"] {
+    border-left-color: #ff6b6b;
+}
+
+.session-item[data-type="reminder"] {
+    border-left-color: #78f7d1;
+}
+
+.session-item[data-type="group_study"] {
+    border-left-color: #ffa726;
+}
+
+/* Mini calendar in welcome banner */
+.welcome-calendar {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 15px;
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}

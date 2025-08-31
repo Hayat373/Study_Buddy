@@ -17,6 +17,7 @@ use App\Http\Controllers\DiscussionReplyController;
 use App\Http\Controllers\ResourceController;
 use App\Http\Controllers\StudyGroupInvitationController;
 use App\Http\Controllers\ScheduleController;
+use App\Http\Controllers\SettingsController;
 
 use Illuminate\Http\Request;
 
@@ -186,5 +187,15 @@ Route::fallback(function () {
 Route::resource('schedule', ScheduleController::class);
 Route::get('/schedule/calendar', [ScheduleController::class, 'calendar'])->name('schedule.calendar');
 Route::get('/schedule/api', [ScheduleController::class, 'apiIndex'])->name('schedule.api');
+
+// Settings routes
+Route::prefix('settings')->group(function () {
+    Route::get('/', [SettingsController::class, 'index'])->name('settings.index');
+    Route::post('/profile', [SettingsController::class, 'updateProfile'])->name('settings.profile.update');
+    Route::post('/password', [SettingsController::class, 'updatePassword'])->name('settings.password.update');
+    Route::post('/notifications', [SettingsController::class, 'updateNotifications'])->name('settings.notifications.update');
+    Route::post('/privacy', [SettingsController::class, 'updatePrivacy'])->name('settings.privacy.update');
+    Route::post('/logout', [SettingsController::class, 'logout'])->name('logout');
+});
 
 require __DIR__.'/auth.php';

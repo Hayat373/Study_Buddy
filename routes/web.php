@@ -16,6 +16,7 @@ use App\Http\Controllers\DiscussionController;
 use App\Http\Controllers\DiscussionReplyController;
 use App\Http\Controllers\ResourceController;
 use App\Http\Controllers\StudyGroupInvitationController;
+use App\Http\Controllers\ScheduleController;
 
 use Illuminate\Http\Request;
 
@@ -181,5 +182,9 @@ Route::delete('/invitations/{invitationId}', [StudyGroupInvitationController::cl
 Route::fallback(function () {
     return response()->view('errors.404', [], 404);
 });
+
+Route::resource('schedule', ScheduleController::class);
+Route::get('/schedule/calendar', [ScheduleController::class, 'calendar'])->name('schedule.calendar');
+Route::get('/schedule/api', [ScheduleController::class, 'apiIndex'])->name('schedule.api');
 
 require __DIR__.'/auth.php';

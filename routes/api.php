@@ -8,6 +8,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FlashcardController;
 use App\Http\Controllers\StudySessionController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\QuizController;
 
 // Public API routes
 Route::post('/register', [AuthController::class, 'register']);
@@ -75,6 +76,42 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 });
     
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/dashboard/stats', function (Request $request) {
+        $user = $request->user();
+        
+        $flashcardSetsCount = App\Models\FlashcardSet::where('user_id', $user->id)->count();
+        $totalStudyTime = App\Models\StudySession::where('user_id', $user->id)
+            ->where('completed', true)
+            ->sum('duration_minutes');
+        
+        // Calculate current streak (consecutive days with study sessions)
+        $streak = 0;
+        $currentDate = now();
+        while (true) {
+            $hasSession = App\Models\StudySession::where('user_id', $user->id)
+                ->whereDate('created_at', $currentDate->format('Y-m-d'))
+                ->where('completed', true)
+                ->exists();
+            
+            if ($hasSession) {
+                $streak++;
+                $currentDate->subDay();
+            } else {
+                break;
+            }
+        }
+        
+        return response()->json([
+            'flashcardSetsCount' => $flashcardSetsCount,
+            'totalStudyHours' => round($totalStudyTime / 60, 1),
+            'masteryLevel' => App\Http\Controllers\DashboardController::calculateMasteryLevel($user->id),
+            'currentStreak' => $streak,
+            'updatedAt' => now()->toISOString()
+        ]);
+    });
+});
+
     // Real-time updates
     Route::get('/updates', [DashboardController::class, 'streamUpdates']);
 });

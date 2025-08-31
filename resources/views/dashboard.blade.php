@@ -22,12 +22,54 @@
     </div>
     
     <!-- Real-time Stats Cards -->
-    <div class="stats-grid" id="statsGrid">
-        @include('partials.real-time-stats', [
-            'flashcardSetsCount' => $flashcardSetsCount,
-            'totalStudyTime' => $totalStudyTime,
-            'masteryLevel' => $masteryLevel
-        ])
+    <div class="stats-grid">
+        <!-- Flashcard Sets Card -->
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-layer-group"></i>
+            </div>
+            <div class="stat-content">
+                <h3 id="flashcards-count">{{ $flashcardSetsCount }}</h3>
+                <p>Flashcard Sets</p>
+            </div>
+            <span class="stat-trend up">+{{ rand(2, 8) }}%</span>
+        </div>
+
+        <!-- Total Study Time Card -->
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-content">
+                <h3 id="study-hours">{{ round($totalStudyTime / 60, 1) }}</h3>
+                <p>Study Hours</p>
+            </div>
+            <span class="stat-trend up">+{{ rand(5, 15) }}%</span>
+        </div>
+
+        <!-- Mastery Level Card -->
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+            <div class="stat-content">
+                <h3 id="mastery-level">{{ $masteryLevel }}%</h3>
+                <p>Mastery Level</p>
+            </div>
+            <span class="stat-trend up">+{{ rand(3, 10) }}%</span>
+        </div>
+
+        <!-- Current Streak Card -->
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-fire"></i>
+            </div>
+            <div class="stat-content">
+                <h3 id="study-streak">{{ rand(3, 15) }}</h3>
+                <p>Day Streak</p>
+            </div>
+            <span class="stat-trend up">+{{ rand(1, 5) }} days</span>
+        </div>
     </div>
     
     <!-- Recent Activity and Quick Actions -->
@@ -35,17 +77,17 @@
         <div class="content-card">
             <div class="card-header">
                 <h2>Recent Activity</h2>
-                <a href="#" class="view-all">View All</a>
+                <a href="{{ route('study-sessions.index') }}" class="view-all">View Sessions</a>
             </div>
             <div class="activity-list">
                 @forelse($recentActivities as $activity)
                 <div class="activity-item">
-                    <div class="activity-icon {{ $activity->type }}-icon">
-                        <i class="fas fa-{{ $activity->type === 'quiz' ? 'check-circle' : 'book' }}"></i>
+                    <div class="activity-icon {{ $activity['type'] }}-icon">
+                        <i class="fas fa-{{ $activity['type'] === 'quiz' ? 'check-circle' : ($activity['type'] === 'study' ? 'book' : 'comments') }}"></i>
                     </div>
                     <div class="activity-content">
-                        <p>{{ $activity->description }}</p>
-                        <span class="activity-time">{{ $activity->created_at->diffForHumans() }}</span>
+                        <p>{{ $activity['description'] }}</p>
+                        <span class="activity-time">{{ \Carbon\Carbon::parse($activity['created_at'])->diffForHumans() }}</span>
                     </div>
                 </div>
                 @empty
@@ -95,7 +137,7 @@
     <div class="content-card">
         <div class="card-header">
             <h2>Upcoming Study Sessions</h2>
-            <a href="#" class="view-all">View All</a>
+            <a href="{{ route('study-sessions.index') }}" class="view-all">View All</a>
         </div>
         <div class="sessions-list">
             @forelse($studySessions as $session)
@@ -112,21 +154,23 @@
                             <i class="fas fa-clock"></i> 
                             {{ $session->scheduled_at->format('h:i A') }}
                         </span>
+                        @if($session->studyGroup)
                         <span class="session-members">
                             <i class="fas fa-users"></i> 
-                            {{ $session->participants_count }} participants
+                            {{ $session->studyGroup->name }}
                         </span>
+                        @endif
                     </div>
                 </div>
-                <button class="btn btn-primary btn-sm">
+                <a href="{{ route('study-sessions.join', $session->id) }}" class="btn btn-primary btn-sm">
                     <i class="fas fa-calendar-check"></i> Join
-                </button>
+                </a>
             </div>
             @empty
             <div class="empty-state">
                 <i class="fas fa-calendar-times"></i>
                 <p>No upcoming study sessions</p>
-                <a href="{{ route('study-groups.create') }}" class="btn btn-outline">Schedule One</a>
+                <a href="{{ route('study-sessions.create') }}" class="btn btn-outline">Schedule One</a>
             </div>
             @endforelse
         </div>

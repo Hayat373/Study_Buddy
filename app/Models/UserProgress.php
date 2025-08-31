@@ -20,4 +20,9 @@ class UserProgress extends Model
     {
         return $this->belongsTo(FlashcardSet::class);
     }
+
+    public function flashcard()
+{
+    return $this->belongsTo(Flashcard::class);
+}
 }

@@ -9,7 +9,7 @@ class FlashcardSet extends Model
 {
     use HasFactory;
     
-    protected $fillable = ['user_id', 'title', 'description', 'is_public'];
+    protected $fillable = ['user_id', 'title', 'description', 'subject', 'is_public'];
     
     public function user()
     {

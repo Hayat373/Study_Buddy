@@ -58,7 +58,12 @@
     gap: 20px;
     margin-bottom: 30px;
 }
-
+.dashboard-header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
 .quiz-card {
     background: rgba(20, 40, 60, 0.5);
     border-radius: 16px;

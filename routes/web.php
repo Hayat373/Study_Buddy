@@ -93,6 +93,8 @@ Route::post('quizzes/answer/{attemptId}', [QuizController::class, 'submitAnswer'
 Route::post('quizzes/complete/{attemptId}', [QuizController::class, 'completeAttempt'])->name('quizzes.complete');
 Route::get('quizzes/results/{attemptId}', [QuizController::class, 'getResults'])->name('quizzes.results');
 Route::get('quiz/history', [QuizController::class, 'history'])->name('quiz.history');
+Route::get('quizzes/take/{id}', [QuizController::class, 'takeQuiz'])->name('quizzes.take');
+
     // Video Call Routes
     Route::prefix('video-calls')->group(function () {
         Route::get('/', [VideoCallController::class, 'index'])->name('video-calls.index');

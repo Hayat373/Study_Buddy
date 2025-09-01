@@ -353,7 +353,10 @@ public function takeQuiz($id)
         ]);
     }
     
-    return view('quizzes.take', compact('quiz', 'attempt'));
+    // Get questions for this quiz
+    $questions = $quiz->questions;
+    
+    return view('quizzes.take', compact('quiz', 'attempt', 'questions'));
 }
 
 

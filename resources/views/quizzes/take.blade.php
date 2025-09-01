@@ -4,6 +4,19 @@
 
 @section('content')
 <div class="dashboard-container">
+    @if(!$questions || count($questions) === 0)
+    <div class="empty-quiz-state">
+        <i class="fas fa-exclamation-circle"></i>
+        <h2>No Questions Available</h2>
+        <p>This quiz doesn't have any questions yet. Please add some flashcards to the set first.</p>
+        <a href="{{ route('flashcards.index') }}" class="btn btn-primary">
+            <i class="fas fa-layer-group"></i> Manage Flashcards
+        </a>
+        <a href="{{ route('quizzes.index') }}" class="btn btn-outline">
+            <i class="fas fa-arrow-left"></i> Back to Quizzes
+        </a>
+    </div>
+    @else
     <div class="quiz-header">
         <h1>{{ $quiz->title }}</h1>
         <div class="quiz-timer" id="quizTimer">
@@ -77,13 +90,25 @@
             </div>
         </div>
     </div>
+    @endif
 </div>
 @endsection
 
 @section('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const questions = @json($questions);
+    @if($questions && count($questions) > 0)
+    // Convert questions to a format that can be JSON encoded
+    const questions = @json($questions->map(function($question) {
+        return [
+            'id' => $question->id,
+            'flashcard' => [
+                'question' => $question->flashcard->question,
+                'answer' => $question->flashcard->answer
+            ]
+        ];
+    }));
+    
     const timeLimit = {{ $quiz->time_limit ? $quiz->time_limit * 60 : 0 }};
     const showCorrectAnswers = {{ $quiz->show_correct_answers ? 'true' : 'false' }};
     
@@ -96,7 +121,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // DOM Elements
     const questionText = document.getElementById('questionText');
     const questionId = document.getElementById('questionId');
-    const userAnswer = document.getElementById('userAnswer');
+    const userAnswerInput = document.getElementById('userAnswer');
     const prevButton = document.getElementById('prevQuestion');
     const nextButton = document.getElementById('nextQuestion');
     const submitButton = document.querySelector('button[type="submit"]');
@@ -107,7 +132,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const feedbackCard = document.getElementById('feedbackCard');
     const feedbackTitle = document.getElementById('feedbackTitle');
     const feedbackText = document.getElementById('feedbackText');
-    const correctAnswer = document.getElementById('correctAnswer');
+    const correctAnswerSpan = document.getElementById('correctAnswer');
     const correctAnswerContainer = document.getElementById('correctAnswerContainer');
     const continueBtn = document.getElementById('continueBtn');
     const quizComplete = document.getElementById('quizComplete');
@@ -133,12 +158,12 @@ document.addEventListener('DOMContentLoaded', function() {
         
         questionText.textContent = question.flashcard.question;
         questionId.value = question.id;
-        userAnswer.value = userAnswers[question.id] || '';
+        userAnswerInput.value = userAnswers[question.id] || '';
         
         // Update navigation buttons
         prevButton.disabled = index === 0;
         nextButton.style.display = index === questions.length - 1 ? 'none' : 'inline-flex';
-        submitButton.style.display = index === questions.length - 1 ? 'inline-flex' : 'none';
+        submitButton.style.display = index === questions.length - 1 ? 'none' : 'inline-flex';
         
         currentQuestionSpan.textContent = index + 1;
         updateProgress();
@@ -225,7 +250,7 @@ document.addEventListener('DOMContentLoaded', function() {
             'Your answer was not correct.';
         
         if (showCorrectAnswers) {
-            correctAnswer.textContent = data.correct_answer;
+            correctAnswerSpan.textContent = data.correct_answer;
             correctAnswerContainer.style.display = 'block';
         } else {
             correctAnswerContainer.style.display = 'none';
@@ -233,6 +258,11 @@ document.addEventListener('DOMContentLoaded', function() {
         
         questionCard.style.display = 'none';
         feedbackCard.style.display = 'block';
+        
+        // If this is the last question, change the continue button text
+        if (currentQuestionIndex === questions.length - 1) {
+            continueBtn.textContent = 'Finish Quiz';
+        }
     }
 
     // Continue to next question or complete quiz
@@ -287,6 +317,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize the quiz
     initQuiz();
+    @else
+    // Hide any quiz elements that might be visible
+    const quizForm = document.getElementById('quizForm');
+    const quizTimer = document.getElementById('quizTimer');
+    const quizProgress = document.getElementById('quizProgress');
+    
+    if (quizForm) quizForm.style.display = 'none';
+    if (quizTimer) quizTimer.style.display = 'none';
+    if (quizProgress) quizProgress.style.display = 'none';
+    @endif
 });
 </script>
 
@@ -449,6 +489,37 @@ document.addEventListener('DOMContentLoaded', function() {
     flex-wrap: wrap;
 }
 
+.empty-quiz-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #a4d8e8;
+}
+
+.empty-quiz-state i {
+    font-size: 4rem;
+    color: #ffa726;
+    margin-bottom: 20px;
+    opacity: 0.7;
+}
+
+.empty-quiz-state h2 {
+    color: #dffbff;
+    margin-bottom: 15px;
+    font-size: 1.8rem;
+}
+
+.empty-quiz-state p {
+    margin-bottom: 30px;
+    font-size: 1.1rem;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.empty-quiz-state .btn {
+    margin: 0 10px;
+}
+
 @media (max-width: 768px) {
     .quiz-header {
         flex-direction: column;
@@ -461,6 +532,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
     .complete-actions {
         flex-direction: column;
+    }
+    
+    .empty-quiz-state .btn {
+        display: block;
+        margin: 10px auto;
+        width: 200px;
     }
 }
 </style>

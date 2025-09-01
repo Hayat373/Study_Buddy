@@ -62,6 +62,12 @@
     border: 1px solid rgba(57, 183, 255, 0.1);
     backdrop-filter: blur(10px);
 }
+.dashboard-header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
 
 .form-group {
     margin-bottom: 20px;

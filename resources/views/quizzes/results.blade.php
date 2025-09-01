@@ -53,19 +53,33 @@
                     </span>
                 </div>
                 <div class="review-content">
-                    <p class="question-text">{{ $answer->question->flashcard->question }}</p>
-                    <div class="answer-comparison">
-                        <div class="answer-row">
-                            <span class="answer-label">Your answer:</span>
-                            <span class="user-answer">{{ $answer->user_answer }}</span>
+                    @if($answer->question && $answer->question->flashcard)
+                        <p class="question-text">{{ $answer->question->flashcard->question }}</p>
+                        <div class="answer-comparison">
+                            <div class="answer-row">
+                                <span class="answer-label">Your answer:</span>
+                                <span class="user-answer">{{ $answer->user_answer }}</span>
+                            </div>
+                            @if(!$answer->is_correct)
+                            <div class="answer-row">
+                                <span class="answer-label">Correct answer:</span>
+                                <span class="correct-answer">{{ $answer->question->flashcard->answer }}</span>
+                            </div>
+                            @endif
                         </div>
-                        @if(!$answer->is_correct)
-                        <div class="answer-row">
-                            <span class="answer-label">Correct answer:</span>
-                            <span class="correct-answer">{{ $answer->question->flashcard->answer }}</span>
+                    @else
+                        <p class="question-text">Question data not available.</p>
+                        <div class="answer-comparison">
+                            <div class="answer-row">
+                                <span class="answer-label">Your answer:</span>
+                                <span class="user-answer">{{ $answer->user_answer }}</span>
+                            </div>
+                            <div class="answer-row">
+                                <span class="answer-label">Status:</span>
+                                <span class="correct-answer">{{ $answer->is_correct ? 'Correct' : 'Incorrect' }}</span>
+                            </div>
                         </div>
-                        @endif
-                    </div>
+                    @endif
                 </div>
             </div>
             @endforeach

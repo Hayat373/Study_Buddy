@@ -1,68 +1,123 @@
 @extends('layouts.app')
-<link rel="stylesheet" href="{{ asset('css/quiz.css') }}">
 
-@section('title', 'Quizzes')
+@section('title', 'My Quizzes')
 
 @section('content')
-<div class="container">
-    <h1 class="mb-4">Quizzes</h1>
-
-    @if (session('success'))
-        <div class="success-message">
-            {{ session('success') }}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1>My Quizzes</h1>
+        <div class="dashboard-actions">
+            <a href="{{ route('flashcards.index') }}" class="btn btn-outline">
+                <i class="fas fa-arrow-left"></i> Back to Flashcards
+            </a>
         </div>
-    @endif
+    </div>
 
-    @if ($errors->any())
-        <div class="error-messages">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
+    <div class="quizzes-grid">
+        @foreach($quizzes as $quiz)
+        <div class="quiz-card">
+            <div class="quiz-header">
+                <h3>{{ $quiz->title }}</h3>
+                <span class="quiz-badge">{{ $quiz->questions->count() }} questions</span>
+            </div>
+            <div class="quiz-content">
+                <p>{{ $quiz->description }}</p>
+                <div class="quiz-meta">
+                    <span><i class="fas fa-clock"></i> {{ $quiz->time_limit ?? 'No' }} time limit</span>
+                    <span><i class="fas fa-shuffle"></i> {{ $quiz->shuffle_questions ? 'Shuffled' : 'In order' }}</span>
+                </div>
+            </div>
+            <div class="quiz-actions">
+                <a href="{{ route('quizzes.show', $quiz->id) }}" class="btn btn-sm btn-primary">
+                    <i class="fas fa-eye"></i> View
+                </a>
+                <a href="{{ route('quizzes.edit', $quiz->id) }}" class="btn btn-sm btn-outline">
+                    <i class="fas fa-edit"></i> Edit
+                </a>
+                <form action="{{ route('quizzes.destroy', $quiz->id) }}" method="POST" class="d-inline">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </form>
+            </div>
         </div>
-    @endif
-
-    <div class="mb-3">
-        @foreach ($flashcardSets as $flashcardSet)
-            <a href="{{ route('quizzes.create', ['setId' => $flashcardSet->id]) }}" class="btn btn-primary mb-2">Create Quiz from {{ $flashcardSet->title }}</a>
         @endforeach
     </div>
 
-    @if ($quizzes->isEmpty())
-        <div class="alert alert-info">
-            No quizzes available. Create your first quiz!
-        </div>
-    @else
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Title</th>
-                    <th>Created At</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($quizzes as $quiz)
-                    <tr>
-                        <td>{{ $loop->iteration }}</td>
-                        <td>{{ $quiz->title }}</td>
-                        <td>{{ $quiz->created_at->format('d M Y') }}</td>
-                        <td>
-                            <a href="{{ route('quizzes.show', $quiz->id) }}" class="btn btn-info btn-sm">View</a>
-                            <a href="{{ route('quizzes.edit', $quiz->id) }}" class="btn btn-warning btn-sm">Edit</a>
-                            <form action="{{ route('quizzes.destroy', $quiz->id) }}" method="POST" style="display:inline;">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?');">Delete</button>
-                            </form>
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-        {{ $quizzes->links() }}
-    @endif
+    {{ $quizzes->links() }}
 </div>
+@endsection
+
+@section('styles')
+<style>
+.quizzes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.quiz-card {
+    background: rgba(20, 40, 60, 0.5);
+    border-radius: 16px;
+    padding: 20px;
+    border: 1px solid rgba(57, 183, 255, 0.1);
+    backdrop-filter: blur(10px);
+    transition: transform 0.3s ease;
+}
+
+.quiz-card:hover {
+    transform: translateY(-5px);
+}
+
+.quiz-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.quiz-header h3 {
+    color: #dffbff;
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.quiz-badge {
+    background: linear-gradient(135deg, #2dc2ff 0%, #78f7d1 100%);
+    color: #0a1929;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.quiz-content p {
+    color: #a4d8e8;
+    margin-bottom: 15px;
+}
+
+.quiz-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.quiz-meta span {
+    color: #78f7d1;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.quiz-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+</style>
 @endsection

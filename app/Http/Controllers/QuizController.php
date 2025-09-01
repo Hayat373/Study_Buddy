@@ -105,7 +105,8 @@ public function store(Request $request, $setId)
     }
 }
 
-   public function startAttempt(Request $request, $quizId)
+
+  public function startAttempt(Request $request, $quizId)
 {
     try {
         $quiz = Quiz::with('questions.flashcard')->findOrFail($quizId);
@@ -121,11 +122,12 @@ public function store(Request $request, $setId)
             'started_at' => now()
         ]);
 
-        return response()->json([
+        // Redirect to the quiz taking page instead of returning JSON
+        return redirect()->route('quizzes.take', $quizId)->with([
             'attempt' => $attempt,
-            'quiz' => $quiz,
             'questions' => $quiz->questions
-        ], 200);
+        ]);
+
     } catch (\Exception $e) {
         Log::error('Start quiz attempt error: ', [
             'quizId' => $quizId,
@@ -133,7 +135,7 @@ public function store(Request $request, $setId)
             'message' => $e->getMessage(),
             'trace' => $e->getTraceAsString()
         ]);
-        return response()->json(['error' => 'Failed to start quiz. Please try again.'], 500);
+        return back()->withErrors(['error' => 'Failed to start quiz. Please try again.']);
     }
 }
 
@@ -324,6 +326,34 @@ public function destroy($id)
         Log::error('Quiz deletion error: ' . $e->getMessage());
         return back()->withErrors(['error' => 'Failed to delete quiz. Please try again.']);
     }
+}
+
+// Show the quiz taking interface
+public function takeQuiz($id)
+{
+    $quiz = Quiz::with('questions.flashcard')->findOrFail($id);
+    
+    if ($quiz->user_id !== Auth::id()) {
+        abort(403, 'Unauthorized');
+    }
+    
+    // Get the latest attempt or create a new one
+    $attempt = QuizAttempt::where('user_id', Auth::id())
+        ->where('quiz_id', $id)
+        ->whereNull('completed_at')
+        ->latest()
+        ->first();
+    
+    if (!$attempt) {
+        $attempt = QuizAttempt::create([
+            'user_id' => Auth::id(),
+            'quiz_id' => $id,
+            'total_questions' => $quiz->questions->count(),
+            'started_at' => now()
+        ]);
+    }
+    
+    return view('quizzes.take', compact('quiz', 'attempt'));
 }
 
 

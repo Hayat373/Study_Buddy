@@ -1,134 +1,169 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz History - Study Buddy</title>
-    <link rel="stylesheet" href="{{ asset('css/quiz.css') }}">
-    <style>
-        .quiz-history {
-            margin-top: 20px;
-        }
-        .history-item {
-            background: white;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .history-info {
-            flex: 1;
-        }
-        .history-info h3 {
-            margin: 0 0 5px 0;
-            color: #333;
-        }
-        .history-info p {
-            margin: 2px 0;
-            color: #666;
-            font-size: 0.9rem;
-        }
-        .history-score {
-            text-align: right;
-            margin-left: 15px;
-        }
-        .score-value {
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
-        .score-percentage {
-            font-size: 0.9rem;
-            color: #666;
-        }
-        .score-excellent {
-            color: #28a745;
-        }
-        .score-good {
-            color: #ffc107;
-        }
-        .score-poor {
-            color: #dc3545;
-        }
-        .no-history {
-            text-align: center;
-            padding: 40px;
-            color: #666;
-        }
-        .pagination {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-        }
-        .pagination button {
-            margin: 0 5px;
-            padding: 8px 15px;
-            border: 1px solid #ddd;
-            background: white;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .pagination button.active {
-            background: #007bff;
-            color: white;
-            border-color: #007bff;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>Quiz History</h1>
-            <a href="{{ route('dashboard') }}" class="back-btn">← Dashboard</a>
-        </div>
+@extends('layouts.app')
 
-        <div class="quiz-history">
-            @if($attempts->count() > 0)
-                @foreach($attempts as $attempt)
-                <div class="history-item">
-                    <div class="history-info">
-                        <h3>{{ $attempt->quiz->title }}</h3>
-                        <p>From: {{ $attempt->quiz->flashcardSet->title }}</p>
-                        <p>Completed: {{ $attempt->completed_at->format('M j, Y g:i A') }}</p>
-                        <p>Time taken: {{ floor($attempt->time_taken / 60) }}:{{ sprintf('%02d', $attempt->time_taken % 60) }}</p>
-                    </div>
-                    <div class="history-score">
-                        @php
-                            $percentage = round(($attempt->score / $attempt->total_questions) * 100);
-                            $scoreClass = 'score-good';
-                            if ($percentage >= 80) $scoreClass = 'score-excellent';
-                            if ($percentage < 60) $scoreClass = 'score-poor';
-                        @endphp
-                        <div class="score-value {{ $scoreClass }}">{{ $attempt->score }}/{{ $attempt->total_questions }}</div>
-                        <div class="score-percentage {{ $scoreClass }}">{{ $percentage }}%</div>
-                        <a href="{{ route('quiz.results', ['id' => $attempt->id]) }}" class="btn btn-sm btn-outline">View Details</a>
-                    </div>
-                </div>
-                @endforeach
+@section('title', 'Quiz History')
 
-                <div class="pagination">
-                    @if($attempts->currentPage() > 1)
-                        <a href="{{ $attempts->previousPageUrl() }}" class="btn btn-sm">Previous</a>
-                    @endif
-                    
-                    @for($i = 1; $i <= $attempts->lastPage(); $i++)
-                        <a href="{{ $attempts->url($i) }}" class="btn btn-sm {{ $attempts->currentPage() == $i ? 'active' : '' }}">{{ $i }}</a>
-                    @endfor
-                    
-                    @if($attempts->hasMorePages())
-                        <a href="{{ $attempts->nextPageUrl() }}" class="btn btn-sm">Next</a>
-                    @endif
-                </div>
-            @else
-                <div class="no-history">
-                    <h3>No quiz history yet</h3>
-                    <p>Take your first quiz to see your results here!</p>
-                    <a href="{{ route('dashboard') }}" class="btn btn-primary">Browse Flashcard Sets</a>
-                </div>
-            @endif
+@section('content')
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1>Quiz History</h1>
+        <div class="dashboard-actions">
+            <a href="{{ route('quizzes.index') }}" class="btn btn-outline">
+                <i class="fas fa-arrow-left"></i> Back to Quizzes
+            </a>
         </div>
     </div>
-</body>
-</html>
+
+    <div class="history-container">
+        @if($attempts->count() > 0)
+        <div class="history-list">
+            @foreach($attempts as $attempt)
+            <div class="history-item">
+                <div class="history-main">
+                    <h3>{{ $attempt->quiz->title }}</h3>
+                    <div class="history-meta">
+                        <span class="score {{ $attempt->score / $attempt->total_questions >= 0.7 ? 'high-score' : 'low-score' }}">
+                            {{ $attempt->score }}/{{ $attempt->total_questions }}
+                        </span>
+                        <span class="time">{{ gmdate('H:i:s', $attempt->time_taken) }}</span>
+                        <span class="date">{{ $attempt->completed_at->format('M j, Y') }}</span>
+                    </div>
+                </div>
+                <div class="history-actions">
+                    <a href="{{ route('quizzes.results', $attempt->id) }}" class="btn btn-sm btn-outline">
+                        <i class="fas fa-chart-bar"></i> View Details
+                    </a>
+                </div>
+            </div>
+            @endforeach
+        </div>
+
+        <div class="pagination-container">
+            {{ $attempts->links() }}
+        </div>
+        @else
+        <div class="empty-state">
+            <i class="fas fa-history"></i>
+            <h3>No Quiz History Yet</h3>
+            <p>You haven't completed any quizzes yet. Start studying and take a quiz to see your results here.</p>
+            <a href="{{ route('quizzes.index') }}" class="btn btn-primary">
+                <i class="fas fa-play"></i> Take a Quiz
+            </a>
+        </div>
+        @endif
+    </div>
+</div>
+@endsection
+
+@section('styles')
+<style>
+.history-container {
+    background: rgba(20, 40, 60, 0.5);
+    border-radius: 16px;
+    padding: 25px;
+    border: 1px solid rgba(57, 183, 255, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+.history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background: rgba(15, 30, 45, 0.3);
+    border-radius: 12px;
+    border: 1px solid rgba(57, 183, 255, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.history-item:hover {
+    transform: translateY(-2px);
+}
+
+.history-main h3 {
+    color: #dffbff;
+    margin: 0 0 10px 0;
+    font-size: 1.1rem;
+}
+
+.history-meta {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.history-meta span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+    color: #a4d8e8;
+}
+
+.score {
+    padding: 3px 8px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.high-score {
+    background: rgba(120, 247, 209, 0.2);
+    color: #78f7d1;
+}
+
+.low-score {
+    background: rgba(255, 107, 107, 0.2);
+    color: #ff6b6b;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #a4d8e8;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    opacity: 0.7;
+}
+
+.empty-state h3 {
+    color: #dffbff;
+    margin-bottom: 10px;
+    font-size: 1.5rem;
+}
+
+.empty-state p {
+    margin-bottom: 25px;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.pagination-container {
+    margin-top: 25px;
+    display: flex;
+    justify-content: center;
+}
+
+@media (max-width: 768px) {
+    .history-item {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    .history-meta {
+        flex-direction: column;
+        gap: 8px;
+    }
+}
+</style>
+@endsection

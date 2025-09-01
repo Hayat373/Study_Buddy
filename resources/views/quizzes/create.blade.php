@@ -1,80 +1,115 @@
 @extends('layouts.app')
-<link rel="stylesheet" href="{{ asset('css/quiz.css') }}">
+
 @section('title', 'Create Quiz')
 
 @section('content')
-<div class="container">
-    <div class="header">
+<div class="dashboard-container">
+    <div class="dashboard-header">
         <h1>Create Quiz from Flashcard Set</h1>
-        <a href="{{ url()->previous() }}" class="back-btn">← Back</a>
+        <div class="dashboard-actions">
+            <a href="{{ route('quizzes.index') }}" class="btn btn-outline">
+                <i class="fas fa-arrow-left"></i> Back to Quizzes
+            </a>
+        </div>
     </div>
 
-   <div class="quiz-create-form">
-        @if ($errors->any())
-            <div class="error-messages">
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
+    <div class="create-quiz-form">
+        <form action="{{ route('quizzes.store', $setId) }}" method="POST">
+            @csrf
+            
+            <div class="form-group">
+                <label for="question_count">Number of Questions</label>
+                <input type="number" id="question_count" name="question_count" 
+                       min="1" max="{{ $maxQuestions }}" value="{{ min(10, $maxQuestions) }}" 
+                       class="form-control" required>
+                <small>Maximum available: {{ $maxQuestions }} flashcards</small>
             </div>
-        @endif
 
-        @if ($maxQuestions < 1)
-            <div class="error-messages">
-                <p>No flashcards available in this set. Please add flashcards before creating a quiz.</p>
+            <div class="form-group">
+                <label for="time_limit">Time Limit (minutes)</label>
+                <input type="number" id="time_limit" name="time_limit" 
+                       min="1" class="form-control" placeholder="Optional">
+                <small>Leave empty for no time limit</small>
             </div>
-        @else
-            <form id="quizCreateForm" method="POST" action="{{ route('quizzes.store', $setId) }}">
-                @csrf
-                <input type="hidden" id="flashcardSetId" name="flashcard_set_id" value="{{ $setId }}">
 
-                <div class="form-group">
-                    <label for="questionCount">Number of Questions:</label>
-                    <input type="number" id="questionCount" name="question_count" min="1" max="{{ $maxQuestions }}" value="{{ old('question_count', min(10, $maxQuestions)) }}" required>
-                    <span class="max-questions">(Max: {{ $maxQuestions }})</span>
-                    @error('question_count')
-                        <span class="error">{{ $message }}</span>
-                    @enderror
-                </div>
+            <div class="form-check">
+                <input type="checkbox" id="shuffle_questions" name="shuffle_questions" 
+                       value="1" class="form-check-input" checked>
+                <label for="shuffle_questions" class="form-check-label">Shuffle Questions</label>
+            </div>
 
-                <div class="form-group">
-                    <label for="timeLimit">Time Limit (minutes, optional):</label>
-                    <input type="number" id="timeLimit" name="time_limit" min="1" placeholder="No time limit" value="{{ old('time_limit') }}">
-                    @error('time_limit')
-                        <span class="error">{{ $message }}</span>
-                    @enderror
-                </div>
+            <div class="form-check">
+                <input type="checkbox" id="show_correct_answers" name="show_correct_answers" 
+                       value="1" class="form-check-input" checked>
+                <label for="show_correct_answers" class="form-check-label">Show Correct Answers After Submission</label>
+            </div>
 
-                <div class="form-group checkbox-group">
-                    <label class="checkbox-container">
-                        <input type="checkbox" id="shuffleQuestions" name="shuffle_questions" {{ old('shuffle_questions', true) ? 'checked' : '' }}>
-                        <span class="checkmark"></span>
-                        Shuffle Questions
-                    </label>
-                    @error('shuffle_questions')
-                        <span class="error">{{ $message }}</span>
-                    @enderror
-                </div>
-
-                <div class="form-group checkbox-group">
-                    <label class="checkbox-container">
-                        <input type="checkbox" id="showCorrectAnswers" name="show_correct_answers" {{ old('show_correct_answers', true) ? 'checked' : '' }}>
-                        <span class="checkmark"></span>
-                        Show Correct Answers After Submission
-                    </label>
-                    @error('show_correct_answers')
-                        <span class="error">{{ $message }}</span>
-                    @enderror
-                </div>
-
-                <button type="submit" class="btn btn-primary" id="createQuizBtn">Create Quiz</button>
-            </form>
-        @endif
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Create Quiz
+            </button>
+        </form>
     </div>
 </div>
-
-@section('scripts')
-    <script src="{{ asset('js/quiz-create.js') }}"></script>
 @endsection
+
+@section('styles')
+<style>
+.create-quiz-form {
+    max-width: 600px;
+    background: rgba(20, 40, 60, 0.5);
+    border-radius: 16px;
+    padding: 25px;
+    border: 1px solid rgba(57, 183, 255, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    color: #dffbff;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px 15px;
+    background: rgba(15, 30, 45, 0.3);
+    border: 1px solid rgba(57, 183, 255, 0.2);
+    border-radius: 8px;
+    color: #dffbff;
+    font-size: 14px;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #2dc2ff;
+    box-shadow: 0 0 0 2px rgba(45, 194, 255, 0.2);
+}
+
+.form-check {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+}
+
+.form-check-input {
+    margin-right: 10px;
+}
+
+.form-check-label {
+    color: #dffbff;
+    cursor: pointer;
+}
+
+small {
+    color: #a4d8e8;
+    font-size: 12px;
+    margin-top: 5px;
+    display: block;
+}
+</style>
 @endsection

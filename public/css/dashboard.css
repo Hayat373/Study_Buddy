@@ -851,3 +851,123 @@
     border-radius: 8px;
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
+/* Quiz specific styles */
+.quiz-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.quiz-stat {
+    background: rgba(20, 40, 60, 0.5);
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid rgba(57, 183, 255, 0.1);
+    text-align: center;
+}
+
+.quiz-stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2dc2ff;
+    margin-bottom: 5px;
+}
+
+.quiz-stat-label {
+    color: #a4d8e8;
+    font-size: 14px;
+}
+
+/* Form styles */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-label {
+    display: block;
+    color: #dffbff;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px 15px;
+    background: rgba(15, 30, 45, 0.3);
+    border: 1px solid rgba(57, 183, 255, 0.2);
+    border-radius: 8px;
+    color: #dffbff;
+    font-size: 14px;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #2dc2ff;
+    box-shadow: 0 0 0 2px rgba(45, 194, 255, 0.2);
+}
+
+.form-check {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+}
+
+.form-check-input {
+    margin-right: 10px;
+}
+
+.form-check-label {
+    color: #dffbff;
+    cursor: pointer;
+}
+
+/* Button styles */
+.btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.btn-primary {
+    background: linear-gradient(90deg, #2dc2ff 0%, #78f7d1 100%);
+    color: #0a1929;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(45, 194, 255, 0.3);
+}
+
+.btn-outline {
+    background: transparent;
+    border: 1px solid rgba(57, 183, 255, 0.3);
+    color: #2dc2ff;
+}
+
+.btn-outline:hover {
+    background: rgba(57, 183, 255, 0.1);
+}
+
+.btn-sm {
+    padding: 8px 16px;
+    font-size: 13px;
+}
+
+.btn-danger {
+    background: rgba(255, 107, 107, 0.2);
+    border: 1px solid rgba(255, 107, 107, 0.3);
+    color: #ff6b6b;
+}
+
+.btn-danger:hover {
+    background: rgba(255, 107, 107, 0.3);
+}

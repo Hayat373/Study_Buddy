@@ -1,6 +1,5 @@
 <?php
 
-// app/Models/QuizAttempt.php
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,7 +9,18 @@ class QuizAttempt extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'quiz_id', 'score', 'total_questions', 'time_taken', 'completed_at'];
+    protected $fillable = [
+        'user_id',
+        'quiz_id',
+        'score',
+        'total_questions',
+        'time_taken',
+        'completed_at'
+    ];
+
+    protected $casts = [
+        'completed_at' => 'datetime',
+    ];
 
     public function user()
     {

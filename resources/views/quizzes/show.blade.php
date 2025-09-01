@@ -141,6 +141,9 @@ document.addEventListener('DOMContentLoaded', function() {
     margin-bottom: 20px;
 }
 
+
+
+
 .detail-card, .questions-card {
     background: rgba(20, 40, 60, 0.5);
     border-radius: 16px;

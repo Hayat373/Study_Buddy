@@ -93,7 +93,7 @@ Study Buddy transforms traditional studying into an interactive experience with 
     PUSHER_APP_ID=your_pusher_id
    PUSHER_APP_KEY=your_pusher_key
     PUSHER_APP_SECRET=your_pusher_secret
-   ```
+    ```
 
  6. **Database setup**
    ```bash
@@ -108,4 +108,49 @@ Study Buddy transforms traditional studying into an interactive experience with 
    ```bash
    php artisan serve
    ```
+
+## 🎮 Usage Guide
+
+### Getting Started
+
+
+1. Register an account or login with existing credentials
+
+2. Complete your profile with academic interests and goals
+
+3. Explore the dashboard to see your upcoming study sessions and progress
+
+### Creating Flashcards
+
+1. Navigate to Flashcards section
+
+2. Click "Create New Set"
+
+3. Enter your study topic or upload notes
+
+4. Let AI generate flashcards or create manually
+
+5. Start studying with spaced repetition algorithm
+
+
+### Joinig Study Groups
+
+1. Go to Study Groups section
+
+2. Browse public groups or create your own
+
+3. Set availability preferences
+
+4. Receive invitations and join sessions
+
+### Taking Quizzes
+
+1. Select a subject from Quizzes section
+
+2. Choose difficulty level
+
+3. Complete timed quizzes
+
+4. Review results and explanations
+
 

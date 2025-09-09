@@ -153,4 +153,45 @@ Study Buddy transforms traditional studying into an interactive experience with 
 
 4. Review results and explanations
 
+## 📱 API Documentation
+
+Study Buddy provides a RESTful API for integration with other applications:
+
+```bash
+# Get user flashcards
+GET /api/flashcards
+
+# Create a new study group
+POST /api/study-groups
+
+# Join a chat room
+GET /api/chat/rooms/{id}
+
+```
+
+## 🏗️ Project Structure
+
+```text 
+study-buddy/
+├── app/
+│   ├── Models/          # Eloquent models
+│   ├── Http/
+│   │   ├── Controllers/ # Application controllers
+│   │   └── Middleware/  # Custom middleware
+│   ├── Services/        # Business logic services
+│   └── Providers/       # Service providers
+├── config/              # Configuration files
+├── database/
+│   ├── migrations/      # Database migrations
+│   └── seeders/         # Data seeders
+├── resources/
+│   ├── views/           # Blade templates
+│   └── js/              # JavaScript files
+├── routes/              # Application routes
+├── storage/             # Storage for files and logs
+└── tests/               # PHPUnit tests
+
+```
+
+
 

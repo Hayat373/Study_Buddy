@@ -20,6 +20,9 @@ Study Buddy transforms traditional studying into an interactive experience with 
 - **📅 Smart Scheduling** - Intelligent study planning and calendar integration
 - **📚 Resource Sharing** - Easy file and note sharing within groups
 
+  <img width="1907" height="881" alt="image" src="https://github.com/user-attachments/assets/91965386-34af-4f8d-ba80-ec2e0c83b3ff" />
+
+
 ### 🎨 Premium Features
 - **🤖 AI-Powered Learning** - Smart content suggestions based on your progress
 - **📊 Progress Analytics** - Detailed performance insights and learning trends
@@ -40,6 +43,13 @@ Study Buddy transforms traditional studying into an interactive experience with 
 - Tailwind CSS
 - Alpine.js
 - Livewire (for real-time features)
+
+  <img width="1887" height="868" alt="image" src="https://github.com/user-attachments/assets/cbb19206-494f-483b-a7c5-dc588304febc" />
+
+
+
+
+
 
 **Real-time Features:**
 - Laravel Echo

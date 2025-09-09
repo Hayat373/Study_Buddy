@@ -1,61 +1,111 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Study Buddy 📚✨
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+![Study Buddy](https://img.shields.io/badge/Study-Buddy-blueviolet?style=for-the-badge&logo=bookstack)
+![Laravel](https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-005C84?style=for-the-badge&logo=mysql&logoColor=white)
+![Live Chat](https://img.shields.io/badge/Live_Chat-25D366?style=for-the-badge&logo=whatsapp&logoColor=white)
 
-## About Laravel
+**Your all-in-one intelligent study companion designed to make learning more effective, collaborative, and enjoyable!**
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Study Buddy transforms traditional studying into an interactive experience with AI-powered flashcards, collaborative study groups, real-time chat, and smart scheduling - all in one beautiful, intuitive platform.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🚀 Features
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 🎯 Core Functionality
+- **🔐 User Authentication** - Secure registration and login system
+- **📝 Smart Flashcards** - AI-powered flashcard generation and spaced repetition
+- **❓ Interactive Quizzes** - Auto-generated quizzes with performance tracking
+- **👥 Study Groups** - Create, join, and manage collaborative study sessions
+- **💬 Real-time Chat** - Instant messaging with other students
+- **📅 Smart Scheduling** - Intelligent study planning and calendar integration
+- **📚 Resource Sharing** - Easy file and note sharing within groups
 
-## Learning Laravel
+### 🎨 Premium Features
+- **🤖 AI-Powered Learning** - Smart content suggestions based on your progress
+- **📊 Progress Analytics** - Detailed performance insights and learning trends
+- **🔔 Smart Notifications** - Reminders for upcoming study sessions and deadlines
+- **📱 Mobile Responsive** - Study anywhere on any device
+- **🎯 Gamification** - Earn badges and rewards for learning milestones
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## 🛠️ Technology Stack
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+**Backend:**
+- Laravel 10.x
+- PHP 8.1+
+- MySQL 8.0
+- Redis (for caching and queues)
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+**Frontend:**
+- Blade Templates
+- Tailwind CSS
+- Alpine.js
+- Livewire (for real-time features)
 
-## Laravel Sponsors
+**Real-time Features:**
+- Laravel Echo
+- Pusher/Socket.io
+- Laravel Notifications
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+**AI Integration:**
+- OpenAI API (for flashcard generation)
+- Custom recommendation algorithms
 
-### Premium Partners
+## 📦 Installation
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### Prerequisites
+- PHP 8.1 or higher
+- Composer
+- Node.js and npm
+- MySQL 8.0+
+- Redis (optional but recommended)
 
-## Contributing
+### Step-by-Step Setup
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/study-buddy.git
+   cd study-buddy
+   ```
+   2. **Install PHP dependencies**
 
-## Code of Conduct
+   ```bash
+   composer install
+   ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+   3. **Install JavaScript dependencies**
+   ```bash
+   npm install
+   ```
+   4. **Environment setup**
+   ```bash
+   cp .env.example .env
+    php artisan key:generate
+   ```
+   5. **Condigure enviroment**
+    Edit .env file with your database, mail, and other service configurations:
 
-## Security Vulnerabilities
+    ```env
+    DB_DATABASE=study_buddy
+    DB_USERNAME=your_db_user
+    DB_PASSWORD=your_db_password
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+    OPENAI_API_KEY=your_openai_key
+    PUSHER_APP_ID=your_pusher_id
+   PUSHER_APP_KEY=your_pusher_key
+    PUSHER_APP_SECRET=your_pusher_secret
+   ```
 
-## License
+    6. **Database setup**
+   ```bash
+      php artisan migrate --seed
+   ```
+   7. **Build assets**
+   ```bash
+   npm run build
+   ```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+   8. **Start develpment server**
+   ```bash
+   php artisan serve
+   ```
+

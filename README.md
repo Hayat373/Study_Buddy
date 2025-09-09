@@ -66,22 +66,22 @@ Study Buddy transforms traditional studying into an interactive experience with 
    git clone https://github.com/yourusername/study-buddy.git
    cd study-buddy
    ```
-   2. **Install PHP dependencies**
+2. **Install PHP dependencies**
 
    ```bash
    composer install
    ```
 
-   3. **Install JavaScript dependencies**
+3. **Install JavaScript dependencies**
    ```bash
    npm install
    ```
-   4. **Environment setup**
+4. **Environment setup**
    ```bash
    cp .env.example .env
     php artisan key:generate
    ```
-   5. **Condigure enviroment**
+ 5. **Condigure enviroment**
     Edit .env file with your database, mail, and other service configurations:
 
     ```env
@@ -95,16 +95,16 @@ Study Buddy transforms traditional studying into an interactive experience with 
     PUSHER_APP_SECRET=your_pusher_secret
    ```
 
-    6. **Database setup**
+ 6. **Database setup**
    ```bash
       php artisan migrate --seed
    ```
-   7. **Build assets**
+7. **Build assets**
    ```bash
    npm run build
    ```
 
-   8. **Start develpment server**
+ 8. **Start develpment server**
    ```bash
    php artisan serve
    ```

@@ -231,3 +231,21 @@ body {
 .light-theme .stat-content p {
     color: #4a6f8a;
 }
+
+.error-message {
+    color: #ff6b6b;
+    margin-top: 5px;
+    font-size: 14px;
+}
+
+.error-message.general {
+    margin-bottom: 15px;
+    padding: 10px;
+    background-color: #fff5f5;
+    border-radius: 5px;
+    border: 1px solid #ffd0d0;
+}
+
+.input-wrapper.has-error {
+    border-color: #ff6b6b;
+}

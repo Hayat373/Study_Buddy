@@ -36,7 +36,21 @@ class AuthController extends Controller
         'role' => $request->role,
     ]);
 
-    return response()->json(['message' => 'User registered successfully', 'user' => $user], 201);
+     // Log the user in
+    Auth::login($user);
+
+    if ($request->expectsJson()) {
+        return response()->json([
+            'message' => 'User registered successfully', 
+            'user' => $user,
+            'redirect' => route('dashboard')
+            ], 201);
+    }
+    //  return redirect()->intended('/dashboard');
+
+    // return response()->json(['message' => 'User registered successfully', 'user' => $user], 201);
+
+     return redirect()->route('dashboard')->with('success', 'Registration successful!');
 }
 
 public function login(Request $request)

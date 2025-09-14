@@ -62,7 +62,7 @@
    <a href="{{ route('chat.index') }}" class="nav-link {{ request()->routeIs('chat.*') ? 'active' : '' }}">
       <i class="fas fa-comments"></i>
       <span class="nav-text">Chat</span>
-      <span class="nav-badge" id="navChatBadge">0</span>
+      <!-- <span class="nav-badge" id="navChatBadge">0</span> -->
    </a>
 </li>
 
@@ -116,7 +116,7 @@
         </div>
         
        <div class="header-actions">
-    @if(request()->routeIs('chat.*'))
+    <!-- @if(request()->routeIs('chat.*'))
     <button class="header-btn notification-btn" id="notificationBtn">
         <i class="fas fa-bell"></i>
         <span class="notification-badge" id="notificationBadge">0</span>
@@ -124,9 +124,9 @@
     @else
     <button class="header-btn notification-btn">
         <i class="fas fa-bell"></i>
-        <span class="notification-badge">3</span>
+        <span class="notification-badge"></span>
     </button>
-    @endif
+    @endif -->
     <button class="header-btn theme-toggle" id="themeToggle">
         <i class="fas fa-moon"></i>
     </button>

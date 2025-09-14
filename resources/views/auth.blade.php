@@ -12,20 +12,7 @@
         
         <p class="subtitle">Immersive volumetric content, quizzes, group study -- and an AI-powered study buddy to help you level up.</p>
         
-        <div class="features">
-            <div class="feature">
-                <i class="fas fa-cube"></i>
-                <span>3D Flashcards & immersive models</span>
-            </div>
-            <div class="feature">
-                <i class="fas fa-microphone"></i>
-                <span>Speak answers -- instant scoring and feedback</span>
-            </div>
-            <div class="feature">
-                <i class="fas fa-users"></i>
-                <span>Live rooms with synchronized whiteboards and avatars</span>
-            </div>
-        </div>
+        
     </div>
     
     <div class="auth-container">
@@ -43,7 +30,7 @@
                     <label for="loginEmail">Email or Username</label>
                     <div class="input-wrapper">
                         <i class="fas fa-user input-icon"></i>
-                        <input type="text" id="loginEmail" name="username" placeholder="Enter your email or username" required>
+                        <input type="text" id="loginEmail" name="username" placeholder="Enter your email if you forget or username" required>
                     </div>
                 </div>
                 
@@ -68,10 +55,6 @@
                  </button>
               </div>
                 
-                <button type="button" class="btn btn-face-auth" id="faceLoginBtn">
-                    <i class="fas fa-face-recognition"></i>
-                    Facial Recognition
-                </button>
                 
                 <p class="terms">By continuing, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.</p>
             </form>
@@ -149,10 +132,7 @@
                  </button>
             </div>  
                 
-                <button type="button" class="btn btn-face-auth" id="faceSignupBtn">
-                    <i class="fas fa-face-recognition"></i>
-                    Facial Recognition
-                </button>
+                
                 
                 <p class="terms">By creating an account, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.</p>
             </form>

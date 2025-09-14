@@ -91,7 +91,6 @@
             </div>
           </div>
 
-          <button class="cta" onclick="alert('Explore demo features!');">Try Demo</button>
         </div>
 
       </section>
@@ -104,7 +103,7 @@
           <svg class="owl" id="owlSVG" viewBox="0 0 360 360" width="360" height="360">
             <defs>
               <linearGradient id="owlGradient" x1="0" x2="1">
-                <stop offset="0" stop-color="#2dc2ff" stop-opacity="0.16" />
+                <stop offset="0" stop-color="#2a90b9ff" stop-opacity="0.16" />
                 <stop offset="1" stop-color="#78f7d1" stop-opacity="0.06" />
               </linearGradient>
             </defs>
@@ -127,7 +126,7 @@
               <path d="M36 160 C36 100, 204 92, 204 160 C204 216, 144 268, 120 268 C96 268,36 216,36 160 Z" class="neon-line" style="stroke-opacity:0.28"/>
               <!-- feather details -->
               <g id="featherRows" transform="translate(68,138)">
-                <path d="M0 0 q12 18 34 0" stroke="rgba(57,183,255,0.14)" fill="none" stroke-width="1.2" />
+                <path d="M0 0 q12 18 34 0" stroke="rgba(35, 159, 231, 0.14)" fill="none" stroke-width="1.2" />
                 <path d="M0 18 q14 20 34 2" stroke="rgba(57,183,255,0.12)" fill="none" stroke-width="1.0" transform="translate(0,12)"/>
                 <path d="M0 36 q12 18 34 0" stroke="rgba(57,183,255,0.10)" fill="none" stroke-width="0.9" transform="translate(0,24)"/>
               </g>
@@ -182,8 +181,6 @@
               </svg>
             </div>
             <div>
-              <div class="zero-label">Zero click Facial Signup</div>
-              <div class="small-muted">Quick and secure demo</div>
             </div>
           </div>
 

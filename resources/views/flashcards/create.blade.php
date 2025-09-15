@@ -518,44 +518,53 @@ function handleFileUpload(input) {
         formData.append('count', 10);
         formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
         
-        console.log('FormData entries:');
-        for (let pair of formData.entries()) {
-            console.log(pair[0] + ': ', pair[1]);
-        }
-        
         fetch('{{ route("flashcards.generate.file") }}', {
             method: 'POST',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
                 'Accept': 'application/json'
-                // DON'T set Content-Type for FormData - let browser set it automatically
             },
             body: formData
         })
         .then(response => {
-            console.log('Response status:', response.status);
             if (!response.ok) {
                 return response.text().then(text => {
-                    throw new Error(`Server error: ${response.status}. Response: ${text}`);
+                    // Check if it's JSON
+                    try {
+                        const data = JSON.parse(text);
+                        throw new Error(data.message || 'Server error');
+                    } catch (e) {
+                        throw new Error(`Server error: ${response.status}. Please check console for details.`);
+                    }
                 });
             }
             return response.json();
         })
         .then(data => {
-            console.log('Success:', data);
+            console.log('Server response:', data);
+            
             if (data.success) {
                 progressBar.style.width = '100%';
                 progressBar.textContent = '100%';
+                
+                // Show warning if using mock data
+                if (data.using_mock_data) {
+                    alert('Note: Using demo data since AI service is not configured. Please add your OpenRouter API key to .env for AI-generated flashcards.');
+                }
+                
                 populateFlashcards(data.flashcards, data.file_info);
-                setTimeout(() => progressDiv.style.display = 'none', 1000);
+                
+                setTimeout(() => {
+                    progressDiv.style.display = 'none';
+                }, 1000);
             } else {
-                throw new Error(data.message);
+                throw new Error(data.message || 'Unknown error from server');
             }
         })
         .catch(error => {
-            console.error('Error:', error);
+            console.error('Upload error:', error);
             progressDiv.style.display = 'none';
-            alert('Upload failed: ' + error.message);
+            alert('Error: ' + error.message);
             input.value = '';
         });
     }

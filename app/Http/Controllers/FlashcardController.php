@@ -259,7 +259,8 @@ public function generateFromFile(Request $request)
                 'original_filename' => $originalFilename,
                 'file_path' => $filePath,
                 'file_type' => $fileType
-            ]
+            ],
+            'using_mock_data' => empty(config('services.openrouter.api_key')) 
         ]);
 
     } catch (\Exception $e) {

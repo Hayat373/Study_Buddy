@@ -49,4 +49,10 @@ return [
         'api_url' => 'https://api.openai.com/v1/chat/completions',
     ],
 
+    'openrouter' => [
+    'api_key' => env('OPENROUTER_API_KEY'),
+    'api_url' => 'https://openrouter.ai/api/v1/chat/completions',
+    'model' => 'google/gemini-flash-1.5',
+],
+
 ];

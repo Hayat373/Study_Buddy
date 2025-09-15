@@ -15,14 +15,15 @@ class AIService
     
    public function __construct()
 {
-    $this->apiKey = config('services.openrouter.api_key');
-    $this->apiUrl = 'https://openrouter.ai/api/v1/chat/completions';
-    $this->model = 'google/gemini-flash-1.5'; // Free model
-
-     // Disable SSL verification for development (remove in production)
+     $this->apiKey = config('services.openrouter.api_key'); // Make sure this matches
+    $this->apiUrl = config('services.openrouter.api_url', 'https://openrouter.ai/api/v1/chat/completions');
+    $this->model = config('services.openrouter.model', 'google/gemini-flash-1.5');
+    
+    // Disable SSL verification for development
     if (app()->environment('local')) {
         Http::withOptions(['verify' => false]);
     }
+
 
 }
     
@@ -203,9 +204,12 @@ PROMPT;
     }
 
      // New method for file analysis
-  public function generateFlashcardsFromFile($filePath, $fileType, $count = 10)
+ // app/Services/AIService.php
+public function generateFlashcardsFromFile($filePath, $fileType, $count = 10)
 {
     try {
+        \Log::info('Generating flashcards from file: ' . $filePath);
+        
         // Read file content based on file type
         $content = $this->extractFileContent($filePath, $fileType);
         
@@ -213,23 +217,24 @@ PROMPT;
             throw new \Exception('Could not extract content from file');
         }
 
+        \Log::info('File content extracted successfully, length: ' . strlen($content));
+        
+        // TEMPORARY: Use mock data until API is configured
+        if (empty($this->apiKey)) {
+            \Log::warning('OpenRouter API key not configured, using mock data');
+            return $this->generateMockFlashcardsFromContent($content, $count);
+        }
+
         // Prepare prompt for AI
         $prompt = $this->createFileAnalysisPrompt($content, $count);
 
-        // Temporary SSL fix for development
-        $httpClient = Http::withHeaders([
+        $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . $this->apiKey,
             'Content-Type' => 'application/json',
             'HTTP-Referer' => config('app.url'),
             'X-Title' => config('app.name'),
-        ]);
-
-        // Disable SSL verification in development
-        if (app()->environment('local')) {
-            $httpClient = $httpClient->withOptions(['verify' => false]);
-        }
-
-        $response = $httpClient->post($this->apiUrl, [
+        ])->withOptions(['verify' => app()->environment('local') ? false : true])
+        ->post($this->apiUrl, [
             'model' => $this->model,
             'messages' => [
                 [
@@ -246,7 +251,7 @@ PROMPT;
         ]);
 
         if ($response->failed()) {
-            Log::error('OpenRouter API Error: ' . $response->body());
+            \Log::error('OpenRouter API Error: ' . $response->body());
             throw new \Exception('AI service unavailable: ' . $response->body());
         }
 
@@ -261,12 +266,44 @@ PROMPT;
         return $this->parseFlashcardsFromResponse($content);
 
     } catch (\Exception $e) {
-        Log::error('AI Flashcard Generation Error: ' . $e->getMessage());
+        \Log::error('AI Flashcard Generation Error: ' . $e->getMessage());
         
         // Return mock data as fallback
-        return $this->getMockFlashcards('file_content', $count);
+        return $this->generateMockFlashcardsFromContent('file_content', $count);
     }
 }
+
+// Add this new method for mock data generation from file content
+protected function generateMockFlashcardsFromContent($content, $count)
+{
+    \Log::info('Generating mock flashcards from content');
+    
+    // Extract some keywords from the content for more relevant mock data
+    $keywords = $this->extractKeywords($content);
+    
+    $mockFlashcards = [];
+    for ($i = 1; $i <= $count; $i++) {
+        $mockFlashcards[] = [
+            'question' => "Question about " . ($keywords[0] ?? 'content') . " #$i",
+            'answer' => "Answer explaining " . ($keywords[0] ?? 'content') . " concept #$i"
+        ];
+    }
+    
+    return $mockFlashcards;
+}
+
+// Helper method to extract keywords
+protected function extractKeywords($content)
+{
+    // Simple keyword extraction - you can improve this later
+    $words = str_word_count($content, 1);
+    $filtered = array_filter($words, function($word) {
+        return strlen($word) > 5 && !in_array(strtolower($word), ['the', 'and', 'for', 'with', 'that', 'this']);
+    });
+    
+    return array_slice(array_unique($filtered), 0, 5);
+}
+
 
 
 

@@ -263,4 +263,43 @@ Route::get('/upload-test', function() {
 });
 
 
+// routes/web.php
+Route::post('/test-file-processing', function(Request $request) {
+    try {
+        $request->validate([
+            'file' => 'required|file|mimes:txt,pdf,docx,md|max:10240',
+        ]);
+
+        $file = $request->file('file');
+        $originalFilename = $file->getClientOriginalName();
+        $fileType = $file->getClientOriginalExtension();
+        $filePath = $file->store('test_uploads', 'public');
+
+        $aiService = new App\Services\AIService();
+        
+        // Test file content extraction
+        $content = $aiService->extractFileContent($filePath, $fileType);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'File processed successfully',
+            'file_info' => [
+                'original_name' => $originalFilename,
+                'type' => $fileType,
+                'path' => $filePath,
+                'content_length' => strlen($content),
+                'content_preview' => substr($content, 0, 200) . '...'
+            ],
+            'has_api_key' => !empty(config('services.openrouter.api_key'))
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ], 500);
+    }
+});
+
+
 require __DIR__.'/auth.php';

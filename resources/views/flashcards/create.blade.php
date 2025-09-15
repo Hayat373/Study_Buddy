@@ -187,13 +187,7 @@
             <textarea id="description" name="description" class="form-control" rows="3" placeholder="Describe what this flashcard set is about"></textarea>
         </div>
 
-        <div class="form-group">
-    <label for="file">Upload File for AI Analysis (Optional)</label>
-    <input type="file" id="file" name="file" class="form-control" 
-           accept=".txt,.pdf,.docx,.md" 
-           onchange="handleFileUpload(this)">
-    <small class="text-muted">Supported formats: TXT, PDF, DOCX, MD (Max: 10MB)</small>
-</div>
+       
 
 <div id="fileUploadProgress" style="display: none; margin-top: 10px;">
     <div class="progress" style="height: 20px;">

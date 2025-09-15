@@ -69,6 +69,7 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/{id}', [FlashcardController::class, 'destroy'])->name('flashcards.destroy');
         Route::post('/generate-ai', [FlashcardController::class, 'generateAI'])->name('flashcards.generate.ai');
         Route::post('/{id}/share', [FlashcardController::class, 'share'])->name('flashcards.share');
+        Route::post('/generate-from-file', [FlashcardController::class, 'generateFromFile'])->name('flashcards.generate.file');
     });
     
     // Study Session Routes

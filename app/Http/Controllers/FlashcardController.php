@@ -43,14 +43,25 @@ class FlashcardController extends Controller
             'flashcards' => 'required|array|min:1',
             'flashcards.*.question' => 'required|string',
             'flashcards.*.answer' => 'required|string',
+            'original_filename' => 'nullable|string',
+            'file_path' => 'nullable|string',
+            'file_type' => 'nullable|string',
         ]);
-        
-        $set = FlashcardSet::create([
+        $setData = [
             'user_id' => Auth::id(),
             'title' => $request->title,
             'description' => $request->description,
             'is_public' => $request->has('is_public'),
-        ]);
+        ];
+
+         if ($request->filled('original_filename')) {
+            $setData['original_filename'] = $request->original_filename;
+            $setData['file_path'] = $request->file_path;
+            $setData['file_type'] = $request->file_type;
+        }
+
+        
+        $set = FlashcardSet::create($setData);
         
         foreach ($request->flashcards as $flashcardData) {
             $set->flashcards()->create([
@@ -140,30 +151,38 @@ class FlashcardController extends Controller
             ->with('success', 'Flashcard set deleted successfully!');
     }
 
-    public function generateAI(Request $request)
-    {
-        $request->validate([
-            'topic' => 'required|string|max:255',
-            'count' => 'required|integer|min:1|max:20',
-        ]);
-        
-        try {
-            $flashcards = $this->aiService->generateFlashcards(
-                $request->topic, 
-                $request->count
-            );
-            
-            return response()->json([
-                'success' => true,
-                'flashcards' => $flashcards
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to generate flashcards: ' . $e->getMessage()
-            ], 500);
-        }
+   public function generateAI(Request $request)
+{
+    $request->validate([
+        'topic' => 'required|string|max:255',
+        'count' => 'required|integer|min:1|max:20',
+    ]);
+    
+    // Check if API key is configured
+    if (empty(config('services.openai.api_key'))) {
+        return response()->json([
+            'success' => false,
+            'message' => 'OpenAI API key is not configured. Please contact administrator.'
+        ], 500);
     }
+    
+    try {
+        $flashcards = $this->aiService->generateFlashcards(
+            $request->topic, 
+            $request->count
+        );
+        
+        return response()->json([
+            'success' => true,
+            'flashcards' => $flashcards
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to generate flashcards: ' . $e->getMessage()
+        ], 500);
+    }
+}
     
     public function share(Request $request, $id)
     {
@@ -185,5 +204,32 @@ class FlashcardController extends Controller
             'message' => 'Flashcard set shared successfully!'
         ]);
     }
+
+    public function generateFromFile(Request $request)
+{
+    $request->validate([
+        'file' => 'required|file|mimes:txt,pdf,docx,md|max:10240',
+        'count' => 'required|integer|min:1|max:20',
+    ]);
+
+    // Check if API key is configured
+    if (empty(config('services.openai.api_key'))) {
+        return response()->json([
+            'success' => false,
+            'message' => 'OpenAI API key is not configured. Please contact administrator.'
+        ], 500);
+    }
+
+    try {
+        // ... rest of your file handling code ...
+    } catch (\Exception $e) {
+        Log::error('File flashcard generation error: ' . $e->getMessage());
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to generate flashcards from file: ' . $e->getMessage()
+        ], 500);
+    }
+}
 
 }

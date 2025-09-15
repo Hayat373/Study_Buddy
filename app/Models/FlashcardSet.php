@@ -9,7 +9,9 @@ class FlashcardSet extends Model
 {
     use HasFactory;
     
-    protected $fillable = ['user_id', 'title', 'description', 'subject', 'is_public'];
+    protected $fillable = ['user_id', 'title', 'description', 'subject', 'is_public', 'original_filename',
+        'file_path',
+        'file_type'];
     
     public function user()
     {
@@ -20,4 +22,11 @@ class FlashcardSet extends Model
     {
         return $this->hasMany(Flashcard::class);
     }
+
+     // Add this method to get the file URL
+    public function getFileUrlAttribute()
+    {
+        return $this->file_path ? asset('storage/' . $this->file_path) : null;
+    }
+    
 }

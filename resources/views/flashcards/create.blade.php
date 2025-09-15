@@ -180,6 +180,23 @@
             <textarea id="description" name="description" class="form-control" rows="3" placeholder="Describe what this flashcard set is about"></textarea>
         </div>
 
+        <div class="form-group">
+    <label for="file">Upload File for AI Analysis (Optional)</label>
+    <input type="file" id="file" name="file" class="form-control" 
+           accept=".txt,.pdf,.docx,.md" 
+           onchange="handleFileUpload(this)">
+    <small class="text-muted">Supported formats: TXT, PDF, DOCX, MD (Max: 10MB)</small>
+</div>
+
+<div id="fileUploadProgress" style="display: none; margin-top: 10px;">
+    <div class="progress" style="height: 20px;">
+        <div class="progress-bar" role="progressbar" style="width: 0%;" 
+             aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+    </div>
+    <small>Analyzing file with AI...</small>
+</div>
+
+
         <div class="flashcards-container" id="flashcardsContainer">
             <h3>Flashcards</h3>
             <div class="flashcard-item" data-index="0">
@@ -228,15 +245,42 @@
 <!-- AI Generation Modal -->
 <div class="ai-modal" id="aiModal">
     <div class="ai-modal-content">
-        <h3>Generate Flashcards with AI</h3>
+        <h3>Generate Flashcards</h3>
+        
         <div class="form-group">
-            <label for="aiTopic">Topic *</label>
-            <input type="text" id="aiTopic" class="form-control" placeholder="Enter topic (e.g., Spanish Vocabulary, Math Formulas)">
+            <label>Choose Generation Method:</label>
+            <div class="generation-methods">
+                <button type="button" class="btn btn-outline active" onclick="showMethod('topic')">
+                    From Topic
+                </button>
+                <button type="button" class="btn btn-outline" onclick="showMethod('file')">
+                    From File
+                </button>
+            </div>
         </div>
+
+        <!-- Topic Method -->
+        <div id="topicMethod" class="generation-method">
+            <div class="form-group">
+                <label for="aiTopic">Topic *</label>
+                <input type="text" id="aiTopic" class="form-control" placeholder="Enter topic">
+            </div>
+        </div>
+
+        <!-- File Method -->
+        <div id="fileMethod" class="generation-method" style="display: none;">
+            <div class="form-group">
+                <label for="aiFile">Upload File *</label>
+                <input type="file" id="aiFile" class="form-control" accept=".txt,.pdf,.docx,.md">
+                <small>Supported formats: TXT, PDF, DOCX, MD</small>
+            </div>
+        </div>
+
         <div class="form-group">
             <label for="aiCount">Number of Cards (1-20)</label>
             <input type="number" id="aiCount" class="form-control" min="1" max="20" value="5">
         </div>
+
         <div class="form-actions">
             <button type="button" class="btn btn-outline" onclick="closeAIModal()">Cancel</button>
             <button type="button" class="btn btn-primary" onclick="generateAIFlashcards()">Generate</button>
@@ -354,5 +398,151 @@
             closeAIModal();
         }
     });
+
+    let currentMethod = 'topic';
+
+function showMethod(method) {
+    currentMethod = method;
+    document.querySelectorAll('.generation-method').forEach(el => {
+        el.style.display = 'none';
+    });
+    document.getElementById(method + 'Method').style.display = 'block';
+    
+    // Update active button styles
+    document.querySelectorAll('.generation-methods .btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+}
+
+function handleFileUpload(input) {
+    if (input.files.length > 0) {
+        const file = input.files[0];
+        const progressDiv = document.getElementById('fileUploadProgress');
+        const progressBar = progressDiv.querySelector('.progress-bar');
+        
+        progressDiv.style.display = 'block';
+        progressBar.style.width = '30%';
+        progressBar.textContent = '30%';
+        
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('count', 10); // Default count
+        formData.append('_token', '{{ csrf_token() }}');
+        
+        fetch('{{ route("flashcards.generate.file") }}', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                progressBar.style.width = '100%';
+                progressBar.textContent = '100%';
+                
+                // Populate the form with generated flashcards
+                populateFlashcards(data.flashcards, data.file_info);
+                
+                setTimeout(() => {
+                    progressDiv.style.display = 'none';
+                }, 1000);
+            } else {
+                throw new Error(data.message);
+            }
+        })
+        .catch(error => {
+            progressDiv.style.display = 'none';
+            alert('Error: ' + error.message);
+            input.value = ''; // Clear the file input
+        });
+    }
+}
+
+function populateFlashcards(flashcards, fileInfo = null) {
+    // Clear existing cards except first one
+    const container = document.getElementById('flashcardsContainer');
+    const cards = container.querySelectorAll('.flashcard-item');
+    for (let i = 1; i < cards.length; i++) {
+        cards[i].remove();
+    }
+    
+    flashcardCount = 1;
+    
+    // Update first card
+    if (flashcards.length > 0) {
+        document.querySelector('input[name="flashcards[0][question]"]').value = flashcards[0].question;
+        document.querySelector('textarea[name="flashcards[0][answer]"]').value = flashcards[0].answer;
+    }
+    
+    // Add remaining cards
+    for (let i = 1; i < flashcards.length; i++) {
+        addFlashcard();
+        document.querySelector(`input[name="flashcards[${i}][question]"]`).value = flashcards[i].question;
+        document.querySelector(`textarea[name="flashcards[${i}][answer]"]`).value = flashcards[i].answer;
+    }
+    
+    // Set file info if provided
+    if (fileInfo) {
+        document.querySelector('input[name="original_filename"]').value = fileInfo.original_filename;
+        document.querySelector('input[name="file_path"]').value = fileInfo.file_path;
+        document.querySelector('input[name="file_type"]').value = fileInfo.file_type;
+    }
+}
+
+function generateAIFlashcards() {
+    let url, data;
+    
+    if (currentMethod === 'topic') {
+        const topic = document.getElementById('aiTopic').value;
+        const count = document.getElementById('aiCount').value;
+        
+        if (!topic) {
+            alert('Please enter a topic');
+            return;
+        }
+        
+        url = '{{ route("flashcards.generate.ai") }}';
+        data = { topic, count };
+    } else {
+        const fileInput = document.getElementById('aiFile');
+        const count = document.getElementById('aiCount').value;
+        
+        if (!fileInput.files.length) {
+            alert('Please select a file');
+            return;
+        }
+        
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+        formData.append('count', count);
+        
+        url = '{{ route("flashcards.generate.file") }}';
+        data = formData;
+    }
+    
+    fetch(url, {
+        method: 'POST',
+        headers: currentMethod === 'topic' ? {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        } : {},
+        body: currentMethod === 'topic' ? JSON.stringify(data) : data
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            populateFlashcards(data.flashcards, data.file_info || null);
+            closeAIModal();
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to generate flashcards');
+    });
+}
+
+    
 </script>
 @endsection

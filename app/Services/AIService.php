@@ -18,6 +18,12 @@ class AIService
     $this->apiKey = config('services.openrouter.api_key');
     $this->apiUrl = 'https://openrouter.ai/api/v1/chat/completions';
     $this->model = 'google/gemini-flash-1.5'; // Free model
+
+     // Disable SSL verification for development (remove in production)
+    if (app()->environment('local')) {
+        Http::withOptions(['verify' => false]);
+    }
+
 }
     
    public function generateFlashcards($topic, $count = 5)
@@ -197,93 +203,109 @@ PROMPT;
     }
 
      // New method for file analysis
-    public function generateFlashcardsFromFile($filePath, $fileType, $count = 10)
-    {
-        try {
-            // Read file content based on file type
-            $content = $this->extractFileContent($filePath, $fileType);
-            
-            if (empty($content)) {
-                throw new \Exception('Could not extract content from file');
-            }
-
-            // Prepare prompt for AI
-            $prompt = $this->createFileAnalysisPrompt($content, $count);
-
-            // Call OpenAI API
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $this->apiKey,
-                'Content-Type' => 'application/json',
-            ])->post($this->apiUrl, [
-                'model' => 'gpt-3.5-turbo',
-                'messages' => [
-                    [
-                        'role' => 'system',
-                        'content' => 'You are an expert educational assistant that creates high-quality flashcards from provided content. Create clear, concise question-answer pairs.'
-                    ],
-                    [
-                        'role' => 'user',
-                        'content' => $prompt
-                    ]
-                ],
-                'max_tokens' => 2000,
-                'temperature' => 0.7
-            ]);
-
-            if ($response->failed()) {
-                Log::error('OpenAI API Error: ' . $response->body());
-                throw new \Exception('AI service unavailable: ' . $response->body());
-            }
-
-            $result = $response->json();
-            $content = $result['choices'][0]['message']['content'];
-
-            // Parse the response into flashcards
-            return $this->parseFlashcardsFromResponse($content);
-
-        } catch (\Exception $e) {
-            Log::error('AI Flashcard Generation Error: ' . $e->getMessage());
-            throw $e;
-        }
-    }
-
-    protected function extractFileContent($filePath, $fileType)
-    {
-        $fullPath = Storage::path($filePath);
+  public function generateFlashcardsFromFile($filePath, $fileType, $count = 10)
+{
+    try {
+        // Read file content based on file type
+        $content = $this->extractFileContent($filePath, $fileType);
         
-        switch ($fileType) {
-            case 'txt':
-            case 'md':
-                return file_get_contents($fullPath);
-                
-            case 'pdf':
-                // You'll need to install: composer require smalot/pdfparser
-                $parser = new \Smalot\PdfParser\Parser();
-                $pdf = $parser->parseFile($fullPath);
-                return $pdf->getText();
-                
-            case 'docx':
-                // You'll need to install: composer require phpoffice/phpword
-                $phpWord = \PhpOffice\PhpWord\IOFactory::load($fullPath);
-                $content = '';
-                foreach ($phpWord->getSections() as $section) {
-                    foreach ($section->getElements() as $element) {
-                        if ($element instanceof \PhpOffice\PhpWord\Element\TextRun) {
-                            foreach ($element->getElements() as $text) {
-                                $content .= $text->getText();
-                            }
-                        } elseif ($element instanceof \PhpOffice\PhpWord\Element\Text) {
-                            $content .= $element->getText();
-                        }
-                        $content .= "\n";
-                    }
-                }
-                return $content;
-                
-            default:
-                throw new \Exception("Unsupported file type: {$fileType}");
+        if (empty($content)) {
+            throw new \Exception('Could not extract content from file');
         }
+
+        // Prepare prompt for AI
+        $prompt = $this->createFileAnalysisPrompt($content, $count);
+
+        // Temporary SSL fix for development
+        $httpClient = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $this->apiKey,
+            'Content-Type' => 'application/json',
+            'HTTP-Referer' => config('app.url'),
+            'X-Title' => config('app.name'),
+        ]);
+
+        // Disable SSL verification in development
+        if (app()->environment('local')) {
+            $httpClient = $httpClient->withOptions(['verify' => false]);
+        }
+
+        $response = $httpClient->post($this->apiUrl, [
+            'model' => $this->model,
+            'messages' => [
+                [
+                    'role' => 'system',
+                    'content' => 'You are an expert educational assistant that creates high-quality flashcards from provided content. Create clear, concise question-answer pairs.'
+                ],
+                [
+                    'role' => 'user',
+                    'content' => $prompt
+                ]
+            ],
+            'max_tokens' => 2000,
+            'temperature' => 0.7
+        ]);
+
+        if ($response->failed()) {
+            Log::error('OpenRouter API Error: ' . $response->body());
+            throw new \Exception('AI service unavailable: ' . $response->body());
+        }
+
+        $result = $response->json();
+        $content = $result['choices'][0]['message']['content'] ?? '';
+
+        if (empty($content)) {
+            throw new \Exception('Empty response from AI service');
+        }
+
+        // Parse the response into flashcards
+        return $this->parseFlashcardsFromResponse($content);
+
+    } catch (\Exception $e) {
+        Log::error('AI Flashcard Generation Error: ' . $e->getMessage());
+        
+        // Return mock data as fallback
+        return $this->getMockFlashcards('file_content', $count);
     }
+}
+
+
+
+   protected function extractFileContent($filePath, $fileType)
+{
+    $fullPath = storage_path('app/public/' . $filePath);
+    
+    switch ($fileType) {
+        case 'txt':
+        case 'md':
+            return file_get_contents($fullPath);
+            
+        case 'pdf':
+            $parser = new \Smalot\PdfParser\Parser();
+            $pdf = $parser->parseFile($fullPath);
+            return $pdf->getText();
+            
+        case 'docx':
+            $phpWord = \PhpOffice\PhpWord\IOFactory::load($fullPath);
+            $content = '';
+            foreach ($phpWord->getSections() as $section) {
+                foreach ($section->getElements() as $element) {
+                    if ($element instanceof \PhpOffice\PhpWord\Element\TextRun) {
+                        foreach ($element->getElements() as $text) {
+                            $content .= $text->getText();
+                        }
+                    } elseif ($element instanceof \PhpOffice\PhpWord\Element\Text) {
+                        $content .= $element->getText();
+                    }
+                    $content .= "\n";
+                }
+            }
+            return $content;
+            
+        default:
+            throw new \Exception("Unsupported file type: {$fileType}");
+    }
+}
+
 
     protected function createFileAnalysisPrompt($content, $count)
     {

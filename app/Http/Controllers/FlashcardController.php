@@ -205,25 +205,66 @@ class FlashcardController extends Controller
         ]);
     }
 
-    public function generateFromFile(Request $request)
+public function generateFromFile(Request $request)
 {
+    \Log::info('File upload attempt received');
+    \Log::info('Request data:', $request->all());
+    \Log::info('Files:', $request->file() ?: ['no files']);
+
     $request->validate([
         'file' => 'required|file|mimes:txt,pdf,docx,md|max:10240',
         'count' => 'required|integer|min:1|max:20',
     ]);
 
+    \Log::info('Validation passed');
+
     // Check if API key is configured
-    if (empty(config('services.openai.api_key'))) {
+    if (empty(config('services.openrouter.api_key'))) {
+        \Log::error('OpenRouter API key not configured');
         return response()->json([
             'success' => false,
-            'message' => 'OpenAI API key is not configured. Please contact administrator.'
+            'message' => 'OpenRouter API key is not configured. Please contact administrator.'
         ], 500);
     }
 
     try {
-        // ... rest of your file handling code ...
+        // Store the uploaded file
+        $file = $request->file('file');
+        \Log::info('File details:', [
+            'original_name' => $file->getClientOriginalName(),
+            'size' => $file->getSize(),
+            'mime_type' => $file->getMimeType(),
+            'extension' => $file->getClientOriginalExtension()
+        ]);
+
+        $originalFilename = $file->getClientOriginalName();
+        $fileType = $file->getClientOriginalExtension();
+        $filePath = $file->store('uploads/flashcards', 'public');
+
+        \Log::info('File stored at: ' . $filePath);
+
+        // Generate flashcards from file
+        $flashcards = $this->aiService->generateFlashcardsFromFile(
+            $filePath, 
+            $fileType, 
+            $request->count
+        );
+
+        \Log::info('Flashcards generated successfully', ['count' => count($flashcards)]);
+
+        return response()->json([
+            'success' => true,
+            'flashcards' => $flashcards,
+            'file_info' => [
+                'original_filename' => $originalFilename,
+                'file_path' => $filePath,
+                'file_type' => $fileType
+            ]
+        ]);
+
     } catch (\Exception $e) {
-        Log::error('File flashcard generation error: ' . $e->getMessage());
+        \Log::error('File flashcard generation error: ' . $e->getMessage());
+        \Log::error('Stack trace: ' . $e->getTraceAsString());
         
         return response()->json([
             'success' => false,
@@ -231,5 +272,6 @@ class FlashcardController extends Controller
         ], 500);
     }
 }
+
 
 }

@@ -96,11 +96,11 @@ Route::get('quizzes/results/{attemptId}', [QuizController::class, 'getResults'])
 Route::get('quiz/history', [QuizController::class, 'history'])->name('quiz.history');
 Route::get('quizzes/take/{id}', [QuizController::class, 'takeQuiz'])->name('quizzes.take');
 
-    // Video Call Routes
-    Route::prefix('video-calls')->group(function () {
-        Route::get('/', [VideoCallController::class, 'index'])->name('video-calls.index');
-        Route::get('/{roomId}', [VideoCallController::class, 'join'])->name('video-calls.join');
-    });
+    // // Video Call Routes
+    // Route::prefix('video-calls')->group(function () {
+    //     Route::get('/', [VideoCallController::class, 'index'])->name('video-calls.index');
+    //     Route::get('/{roomId}', [VideoCallController::class, 'join'])->name('video-calls.join');
+    // });
 
     // Chat Routes
     Route::prefix('chat')->group(function () {
@@ -200,5 +200,67 @@ Route::prefix('settings')->group(function () {
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::post('/study-session/start', [StudySessionController::class, 'start'])->name('study-session.start');
+
+// Add to web.php
+Route::get('/test-file-processing', function () {
+    $aiService = new App\Services\AIService();
+    
+    // Test with a simple text file
+    $testContent = "This is a test content about programming. PHP is a server-side scripting language. JavaScript is used for client-side scripting.";
+    
+    Storage::disk('public')->put('test.txt', $testContent);
+    
+    try {
+        $flashcards = $aiService->generateFlashcardsFromFile('test.txt', 'txt', 3);
+        dd($flashcards);
+    } catch (\Exception $e) {
+        dd('Error: ' . $e->getMessage());
+    }
+});
+
+// Add to web.php for testing
+Route::post('/test-upload', function(Request $request) {
+    \Log::info('Test upload received');
+    \Log::info('Files:', $request->file() ?: ['no files']);
+    
+    try {
+        $request->validate([
+            'file' => 'required|file|mimes:txt,pdf,docx,md|max:10240'
+        ]);
+        
+        $file = $request->file('file');
+        $path = $file->store('test_uploads', 'public');
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'File uploaded successfully',
+            'path' => $path,
+            'original_name' => $file->getClientOriginalName(),
+            'size' => $file->getSize()
+        ]);
+    } catch (\Exception $e) {
+        \Log::error('Test upload error: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ], 500);
+    }
+});
+
+// routes/web.php
+Route::get('/phpinfo', function() {
+    phpinfo();
+});
+
+// Add to web.php
+Route::get('/upload-test', function() {
+    return response()->json([
+        'upload_max_filesize' => ini_get('upload_max_filesize'),
+        'post_max_size' => ini_get('post_max_size'),
+        'max_file_uploads' => ini_get('max_file_uploads'),
+        'memory_limit' => ini_get('memory_limit')
+    ]);
+});
+
 
 require __DIR__.'/auth.php';

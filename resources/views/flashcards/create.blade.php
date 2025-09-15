@@ -169,6 +169,13 @@
 
     <form action="{{ route('flashcards.store') }}" method="POST" id="flashcardForm">
         @csrf
+
+
+        
+    <input type="hidden" name="original_filename" value="">
+    <input type="hidden" name="file_path" value="">
+    <input type="hidden" name="file_type" value="">
+        
         
         <div class="form-group">
             <label for="title">Set Title *</label>
@@ -275,6 +282,35 @@
                 <small>Supported formats: TXT, PDF, DOCX, MD</small>
             </div>
         </div>
+
+        <!-- Add this somewhere in your Blade template for testing -->
+<div style="display: none;" id="test-form">
+    <form action="{{ route('flashcards.generate.file') }}" method="POST" enctype="multipart/form-data" id="debugForm">
+        @csrf
+        <input type="file" name="file" id="debugFile">
+        <input type="number" name="count" value="5">
+        <button type="submit">Test</button>
+    </form>
+</div>
+
+<script>
+// Test the form submission
+function testFormUpload() {
+    const fileInput = document.getElementById('debugFile');
+    const form = document.getElementById('debugForm');
+    
+    fileInput.onchange = function() {
+        if (fileInput.files.length > 0) {
+            form.submit();
+        }
+    };
+    
+    fileInput.click();
+}
+
+// Call this to test
+// testFormUpload();
+</script>
 
         <div class="form-group">
             <label for="aiCount">Number of Cards (1-20)</label>
@@ -415,9 +451,61 @@ function showMethod(method) {
     event.target.classList.add('active');
 }
 
+// function handleFileUpload(input) {
+//     if (input.files.length > 0) {
+//         const file = input.files[0];
+//         const progressDiv = document.getElementById('fileUploadProgress');
+//         const progressBar = progressDiv.querySelector('.progress-bar');
+        
+//         progressDiv.style.display = 'block';
+//         progressBar.style.width = '30%';
+//         progressBar.textContent = '30%';
+        
+//         const formData = new FormData();
+//         formData.append('file', file);
+//         formData.append('count', 10);
+//         formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content')); // Fixed CSRF token
+        
+//         fetch('{{ route("flashcards.generate.file") }}', {
+//             method: 'POST',
+//             headers: {
+//                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') // Add this header
+//             },
+//             body: formData
+//         })
+//         .then(response => {
+//             if (!response.ok) {
+//                 throw new Error('Network response was not ok');
+//             }
+//             return response.json();
+//         })
+//         .then(data => {
+//             if (data.success) {
+//                 progressBar.style.width = '100%';
+//                 progressBar.textContent = '100%';
+//                 populateFlashcards(data.flashcards, data.file_info);
+//                 setTimeout(() => {
+//                     progressDiv.style.display = 'none';
+//                 }, 1000);
+//             } else {
+//                 throw new Error(data.message);
+//             }
+//         })
+//         .catch(error => {
+//             progressDiv.style.display = 'none';
+//             alert('Error: ' + error.message);
+//             input.value = '';
+//         });
+//     }
+// }
+
+
+// Temporarily modify handleFileUpload to test basic upload
 function handleFileUpload(input) {
     if (input.files.length > 0) {
         const file = input.files[0];
+        console.log('File selected:', file.name, file.size, file.type);
+        
         const progressDiv = document.getElementById('fileUploadProgress');
         const progressBar = progressDiv.querySelector('.progress-bar');
         
@@ -427,39 +515,56 @@ function handleFileUpload(input) {
         
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('count', 10); // Default count
-        formData.append('_token', '{{ csrf_token() }}');
+        formData.append('count', 10);
+        formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
+        
+        console.log('FormData entries:');
+        for (let pair of formData.entries()) {
+            console.log(pair[0] + ': ', pair[1]);
+        }
         
         fetch('{{ route("flashcards.generate.file") }}', {
             method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+                // DON'T set Content-Type for FormData - let browser set it automatically
+            },
             body: formData
         })
-        .then(response => response.json())
+        .then(response => {
+            console.log('Response status:', response.status);
+            if (!response.ok) {
+                return response.text().then(text => {
+                    throw new Error(`Server error: ${response.status}. Response: ${text}`);
+                });
+            }
+            return response.json();
+        })
         .then(data => {
+            console.log('Success:', data);
             if (data.success) {
                 progressBar.style.width = '100%';
                 progressBar.textContent = '100%';
-                
-                // Populate the form with generated flashcards
                 populateFlashcards(data.flashcards, data.file_info);
-                
-                setTimeout(() => {
-                    progressDiv.style.display = 'none';
-                }, 1000);
+                setTimeout(() => progressDiv.style.display = 'none', 1000);
             } else {
                 throw new Error(data.message);
             }
         })
         .catch(error => {
+            console.error('Error:', error);
             progressDiv.style.display = 'none';
-            alert('Error: ' + error.message);
-            input.value = ''; // Clear the file input
+            alert('Upload failed: ' + error.message);
+            input.value = '';
         });
     }
 }
 
+
+
 function populateFlashcards(flashcards, fileInfo = null) {
-    // Clear existing cards except first one
+     // Clear existing cards except first one
     const container = document.getElementById('flashcardsContainer');
     const cards = container.querySelectorAll('.flashcard-item');
     for (let i = 1; i < cards.length; i++) {
@@ -467,30 +572,33 @@ function populateFlashcards(flashcards, fileInfo = null) {
     }
     
     flashcardCount = 1;
+
     
-    // Update first card
+     // Update first card
     if (flashcards.length > 0) {
-        document.querySelector('input[name="flashcards[0][question]"]').value = flashcards[0].question;
-        document.querySelector('textarea[name="flashcards[0][answer]"]').value = flashcards[0].answer;
+        document.querySelector('input[name="flashcards[0][question]"]').value = flashcards[0].question || '';
+        document.querySelector('textarea[name="flashcards[0][answer]"]').value = flashcards[0].answer || '';
     }
     
-    // Add remaining cards
+     // Add remaining cards
     for (let i = 1; i < flashcards.length; i++) {
         addFlashcard();
-        document.querySelector(`input[name="flashcards[${i}][question]"]`).value = flashcards[i].question;
-        document.querySelector(`textarea[name="flashcards[${i}][answer]"]`).value = flashcards[i].answer;
+        const lastCardIndex = flashcardCount - 1;
+        document.querySelector(`input[name="flashcards[${lastCardIndex}][question]"]`).value = flashcards[i].question || '';
+        document.querySelector(`textarea[name="flashcards[${lastCardIndex}][answer]"]`).value = flashcards[i].answer || '';
     }
+
     
     // Set file info if provided
     if (fileInfo) {
-        document.querySelector('input[name="original_filename"]').value = fileInfo.original_filename;
-        document.querySelector('input[name="file_path"]').value = fileInfo.file_path;
-        document.querySelector('input[name="file_type"]').value = fileInfo.file_type;
+        document.querySelector('input[name="original_filename"]').value = fileInfo.original_filename || '';
+        document.querySelector('input[name="file_path"]').value = fileInfo.file_path || '';
+        document.querySelector('input[name="file_type"]').value = fileInfo.file_type || '';
     }
 }
 
 function generateAIFlashcards() {
-    let url, data;
+    let url, data, options;
     
     if (currentMethod === 'topic') {
         const topic = document.getElementById('aiTopic').value;
@@ -502,7 +610,16 @@ function generateAIFlashcards() {
         }
         
         url = '{{ route("flashcards.generate.ai") }}';
-        data = { topic, count };
+        data = JSON.stringify({ topic, count });
+        options = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: data
+        };
     } else {
         const fileInput = document.getElementById('aiFile');
         const count = document.getElementById('aiCount').value;
@@ -512,23 +629,30 @@ function generateAIFlashcards() {
             return;
         }
         
-        const formData = new FormData();
-        formData.append('file', fileInput.files[0]);
-        formData.append('count', count);
-        
         url = '{{ route("flashcards.generate.file") }}';
-        data = formData;
+        data = new FormData();
+        data.append('file', fileInput.files[0]);
+        data.append('count', count);
+        data.append('_token', document.querySelector('meta[name="csrf-token"]').content);
+        
+        options = {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: data
+        };
     }
     
-    fetch(url, {
-        method: 'POST',
-        headers: currentMethod === 'topic' ? {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        } : {},
-        body: currentMethod === 'topic' ? JSON.stringify(data) : data
+    fetch(url, options)
+    .then(response => {
+        // Check if response is JSON
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            throw new Error('Server returned non-JSON response. Please check authentication.');
+        }
+        return response.json();
     })
-    .then(response => response.json())
     .then(data => {
         if (data.success) {
             populateFlashcards(data.flashcards, data.file_info || null);
@@ -539,9 +663,41 @@ function generateAIFlashcards() {
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('Failed to generate flashcards');
+        alert('Failed to generate flashcards: ' + error.message);
     });
 }
+
+
+// Test basic file upload first
+function testFileUpload() {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = '.txt,.pdf,.docx,.md';
+    
+    fileInput.onchange = function(e) {
+        const file = e.target.files[0];
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
+        
+        fetch('/test-upload', {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => console.log('Test result:', data))
+        .catch(error => console.error('Test error:', error));
+    };
+    
+    fileInput.click();
+}
+
+// Call this function to test
+testFileUpload();
+
 
     
 </script>

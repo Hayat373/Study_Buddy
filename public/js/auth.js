@@ -91,7 +91,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Form submission handling - FIXED VERSION
+    // Form submission handling
     const signupForm = document.querySelector('form#signupForm');
     
     if (signupForm) {
@@ -106,6 +106,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const formData = new FormData(form);
             
             // Debug: Log all form data
+            console.log('Form data contents:');
             for (let [key, value] of formData.entries()) {
                 console.log(key, value);
             }
@@ -135,7 +136,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (!contentType || !contentType.includes('application/json')) {
                     return response.text().then(text => {
                         console.log('Non-JSON response:', text);
-                        throw new Error('Server returned non-JSON response: ' + text.substring(0, 100));
+                        throw new Error('Server returned non-JSON response. Please check your server validation rules.');
                     });
                 }
 
@@ -167,30 +168,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (error.responseData) {
                     // Handle validation errors from server
                     if (error.responseData.errors) {
-                        const errorMessages = Object.values(error.responseData.errors).flat().join('\n');
+                        let errorMessages = '';
+                        for (const field in error.responseData.errors) {
+                            errorMessages += `${field}: ${error.responseData.errors[field].join(', ')}\n`;
+                        }
                         alert('Please fix the following errors:\n\n' + errorMessages);
                     } else if (error.responseData.message) {
                         alert('Error: ' + error.responseData.message);
                     }
                 } else {
-                    // Try to get more detailed error info
-                    fetch(form.action, {
-                        method: 'POST',
-                        body: formData,
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'Accept': 'text/html',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                        }
-                    })
-                    .then(response => response.text())
-                    .then(text => {
-                        console.log('Raw server response:', text);
-                        alert('Registration failed. Please check the console for details.');
-                    })
-                    .catch(err => {
-                        alert('Registration failed. Please try again. Error: ' + error.message);
-                    });
+                    alert('Registration failed. The server is not saving the username field. Please check your AuthController to ensure the username is included in the User::create() method.');
                 }
             })
             .finally(() => {
@@ -211,309 +198,5 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Facial recognition modal
-    const faceModal = document.getElementById('faceModal');
-    const faceLoginBtn = document.getElementById('faceLoginBtn');
-    const faceSignupBtn = document.getElementById('faceSignupBtn');
-    const closeModalBtn = document.getElementById('closeModal');
-    const videoElement = document.getElementById('videoElement');
-
-    function openFaceModal() {
-        if (faceModal) {
-            faceModal.style.display = 'flex';
-            // In a real app, you would access the camera here
-        }
-    }
-
-    function closeFaceModal() {
-        if (faceModal) {
-            faceModal.style.display = 'none';
-            // In a real app, you would stop the camera here
-        }
-    }
-
-    if (faceLoginBtn) faceLoginBtn.addEventListener('click', openFaceModal);
-    if (faceSignupBtn) faceSignupBtn.addEventListener('click', openFaceModal);
-    if (closeModalBtn) closeModalBtn.addEventListener('click', closeFaceModal);
-
-    // Simulate camera access
-    function simulateCameraAccess() {
-        const scanStatus = document.querySelector('.scan-status');
-        if (scanStatus) {
-            scanStatus.textContent = "Camera accessed. Please look straight into the camera.";
-
-            // Simulate face detection
-            setTimeout(() => {
-                scanStatus.textContent = "Face detected. Scanning...";
-            }, 1500);
-
-            setTimeout(() => {
-                scanStatus.textContent = "Verification complete!";
-                scanStatus.style.color = "#78f7d1";
-            }, 3000);
-        }
-    }
-
     createParticles();
-
-    // Facial recognition with camera access
-    if (document.getElementById('faceLoginBtn')) {
-        document.getElementById('faceLoginBtn').addEventListener('click', function() {
-            const faceModal = document.getElementById('faceModal');
-            if (faceModal) faceModal.style.display = 'flex';
-
-            const video = document.getElementById('videoElement');
-            const constraints = {
-                video: { facingMode: 'user' } // Use the front camera
-            };
-
-            navigator.mediaDevices.getUserMedia(constraints)
-                .then(function(stream) {
-                    if (video) video.srcObject = stream;
-                })
-                .catch(function(error) {
-                    console.error("Error accessing the camera: ", error);
-                });
-        });
-    }
-
-    // Close the modal and stop the video stream
-    if (document.getElementById('closeModal')) {
-        document.getElementById('closeModal').addEventListener('click', function() {
-            const faceModal = document.getElementById('faceModal');
-            const video = document.getElementById('videoElement');
-            
-            if (faceModal) faceModal.style.display = 'none';
-            if (video && video.srcObject) {
-                video.srcObject.getTracks().forEach(track => track.stop());
-            }
-        });
-    }
-
-    // Forgot password functionality
-    const forgotPasswordLink = document.querySelector('.forgot-password');
-    if (forgotPasswordLink) {
-        forgotPasswordLink.addEventListener('click', function(event) {
-            event.preventDefault();
-            
-            const email = document.getElementById('loginEmail')?.value;
-            if (!email) {
-                alert('Please enter your email address in the login form first');
-                return;
-            }
-
-            if (confirm(`Send password reset instructions to ${email}?`)) {
-                fetch('/forgot-password', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    },
-                    body: JSON.stringify({ email: email })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    alert(data.message || 'Password reset link sent to your email');
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred. Please try again.');
-                });
-            }
-        });
-    }
-
-    // Facial recognition variables
-    let faceDetectionInterval;
-    let isProcessing = false;
-    let faceModelsLoaded = false;
-    
-    // Load face-api.js models
-    async function loadModels() {
-        try {
-            if (typeof faceapi !== 'undefined') {
-                await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
-                await faceapi.nets.faceLandmark68Net.loadFromUri('/models');
-                await faceapi.nets.faceRecognitionNet.loadFromUri('/models');
-                await faceapi.nets.faceExpressionNet.loadFromUri('/models');
-                
-                faceModelsLoaded = true;
-                console.log('Face API models loaded successfully');
-            }
-        } catch (error) {
-            console.error('Error loading face models:', error);
-        }
-    }
-    
-    // Get face descriptor for registration or login
-    async function getFaceDescriptor() {
-        const video = document.getElementById('videoElement');
-        const scanStatus = document.querySelector('.scan-status');
-        
-        try {
-            if (scanStatus) {
-                scanStatus.textContent = 'Processing your face...';
-            }
-            
-            if (typeof faceapi === 'undefined') {
-                throw new Error('Face API not loaded');
-            }
-            
-            const result = await faceapi.detectSingleFace(
-                video, 
-                new faceapi.TinyFaceDetectorOptions()
-            ).withFaceLandmarks().withFaceDescriptor();
-            
-            if (result) {
-                return Array.from(result.descriptor);
-            } else {
-                throw new Error('No face detected');
-            }
-        } catch (error) {
-            console.error('Error getting face descriptor:', error);
-            if (scanStatus) {
-                scanStatus.textContent = 'Error: ' + error.message;
-                scanStatus.style.color = '#ff6b6b';
-            }
-            return null;
-        }
-    }
-    
-    // Facial registration
-    async function registerWithFace() {
-        const faceDescriptor = await getFaceDescriptor();
-        
-        if (!faceDescriptor) return;
-        
-        // Get form data
-        const username = document.getElementById('signupUsername')?.value;
-        const email = document.getElementById('signupEmail')?.value;
-        const role = document.getElementById('userType')?.value;
-        
-        // Send to server
-        try {
-            const response = await fetch('/facial/register', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({
-                    faceDescriptor,
-                    username,
-                    email,
-                    role
-                })
-            });
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                window.location.href = data.redirect;
-            } else {
-                alert('Registration failed: ' + data.message);
-            }
-        } catch (error) {
-            console.error('Registration error:', error);
-            alert('Registration failed. Please try again.');
-        }
-    }
-    
-    // Facial login
-    async function loginWithFace() {
-        const faceDescriptor = await getFaceDescriptor();
-        
-        if (!faceDescriptor) return;
-        
-        // Send to server
-        try {
-            const response = await fetch('/facial/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({ faceDescriptor })
-            });
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                window.location.href = data.redirect;
-            } else {
-                alert('Login failed: ' + data.message);
-            }
-        } catch (error) {
-            console.error('Login error:', error);
-            alert('Login failed. Please try again.');
-        }
-    }
-    
-    // Open facial recognition modal
-    function openFaceModal(mode) {
-        const faceModal = document.getElementById('faceModal');
-        const verifyBtn = document.querySelector('.facial-modal-content .btn');
-        const scanStatus = document.querySelector('.scan-status');
-        
-        if (!faceModal || !verifyBtn || !scanStatus) return;
-        
-        // Set up the verification button based on mode (login or register)
-        verifyBtn.onclick = mode === 'register' ? registerWithFace : loginWithFace;
-        verifyBtn.disabled = true;
-        
-        scanStatus.textContent = 'Initializing camera...';
-        scanStatus.style.color = '#dffbff';
-        
-        faceModal.style.display = 'flex';
-        
-        // Initialize camera
-        const video = document.getElementById('videoElement');
-        const constraints = {
-            video: { facingMode: 'user' }
-        };
-
-        navigator.mediaDevices.getUserMedia(constraints)
-            .then(function(stream) {
-                if (video) video.srcObject = stream;
-            })
-            .catch(function(error) {
-                console.error("Error accessing the camera: ", error);
-                if (scanStatus) {
-                    scanStatus.textContent = 'Camera access denied';
-                    scanStatus.style.color = '#ff6b6b';
-                }
-            });
-    }
-    
-    // Close facial recognition modal
-    function closeFaceModal() {
-        const faceModal = document.getElementById('faceModal');
-        const video = document.getElementById('videoElement');
-        
-        clearInterval(faceDetectionInterval);
-        
-        if (video && video.srcObject) {
-            video.srcObject.getTracks().forEach(track => track.stop());
-        }
-        
-        if (faceModal) faceModal.style.display = 'none';
-    }
-    
-    // Set up event listeners for facial recognition
-    if (document.getElementById('faceLoginBtn')) {
-        document.getElementById('faceLoginBtn').addEventListener('click', () => openFaceModal('login'));
-    }
-    
-    if (document.getElementById('faceSignupBtn')) {
-        document.getElementById('faceSignupBtn').addEventListener('click', () => openFaceModal('register'));
-    }
-    
-    if (document.getElementById('closeModal')) {
-        document.getElementById('closeModal').addEventListener('click', closeFaceModal);
-    }
-    
-    // Load models when page loads if faceapi is available
-    if (typeof faceapi !== 'undefined') {
-        loadModels();
-    }
 });

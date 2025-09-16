@@ -14,17 +14,17 @@ class AuthController extends Controller
 {
 
    
-    public function register(Request $request)
+   public function register(Request $request)
 {
     \Log::info('Registration attempt received', $request->all());
     
     try {
         $validator = Validator::make($request->all(), [
-             'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
             'username' => 'required|string|max:255|unique:users',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'password_confirmation' => 'required|string|min:8', // Add this if you're using password confirmation
+            'password_confirmation' => 'required|string|min:8',
             'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'role' => 'required|in:student,teacher,parent,lifelong_learner',
         ]);
@@ -46,9 +46,19 @@ class AuthController extends Controller
             \Log::info('Profile picture stored at: ' . $profilePicturePath);
         }
 
-        $user = User::create([
+        // DEBUG: Log what we're about to save
+        \Log::info('Creating user with data:', [
             'name' => $request->name,
             'username' => $request->username,
+            'email' => $request->email,
+            'role' => $request->role,
+            'has_profile_picture' => !is_null($profilePicturePath)
+        ]);
+
+        // Create the user with ALL required fields
+        $user = User::create([
+            'name' => $request->name,
+            'username' => $request->username, 
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'profile_picture' => $profilePicturePath,
@@ -74,6 +84,7 @@ class AuthController extends Controller
         ], 500);
     }
 }
+
 
 
 public function login(Request $request)

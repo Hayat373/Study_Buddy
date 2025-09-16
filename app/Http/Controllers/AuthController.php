@@ -16,42 +16,65 @@ class AuthController extends Controller
    
     public function register(Request $request)
 {
-    $validator = Validator::make($request->all(), [
-        'username' => 'required|string|max:255|unique:users',
-        'email' => 'required|string|email|max:255|unique:users',
-        'password' => 'required|string|min:8|confirmed',
-        // 'faceDescriptor' => 'required|json', // Add this line
-        'role' => 'required|in:student,teacher,parent,lifelong_learner',
-    ]);
+    \Log::info('Registration attempt received', $request->all());
+    
+    try {
+        $validator = Validator::make($request->all(), [
+             'name' => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:users',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8|confirmed',
+            'password_confirmation' => 'required|string|min:8', // Add this if you're using password confirmation
+            'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'role' => 'required|in:student,teacher,parent,lifelong_learner',
+        ]);
 
-    if ($validator->fails()) {
-        return response()->json(['errors' => $validator->errors()], 422);
-    }
+        if ($validator->fails()) {
+            \Log::error('Validation failed', $validator->errors()->toArray());
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
 
-    $user = User::create([
-        'username' => $request->username,
-        'email' => $request->email,
-        'password' => Hash::make($request->password),
-        'faceDescriptor' => $request->faceDescriptor, // Store the face descriptor
-        'role' => $request->role,
-    ]);
+        // Handle profile picture upload
+        $profilePicturePath = null;
+        if ($request->hasFile('profile_picture')) {
+            \Log::info('Profile picture uploaded', [
+                'file_name' => $request->file('profile_picture')->getClientOriginalName(),
+                'file_size' => $request->file('profile_picture')->getSize()
+            ]);
+            
+            $profilePicturePath = $request->file('profile_picture')->store('profile_pictures', 'public');
+            \Log::info('Profile picture stored at: ' . $profilePicturePath);
+        }
 
-     // Log the user in
-    Auth::login($user);
+        $user = User::create([
+            'name' => $request->name,
+            'username' => $request->username,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'profile_picture' => $profilePicturePath,
+            'role' => $request->role,
+        ]);
 
-    if ($request->expectsJson()) {
+        \Log::info('User created successfully', ['user_id' => $user->id]);
+
+        Auth::login($user);
+
         return response()->json([
             'message' => 'User registered successfully', 
             'user' => $user,
             'redirect' => route('dashboard')
-            ], 201);
+        ], 201);
+
+    } catch (\Exception $e) {
+        \Log::error('Registration error: ' . $e->getMessage());
+        \Log::error('Stack trace: ' . $e->getTraceAsString());
+        
+        return response()->json([
+            'message' => 'Registration failed: ' . $e->getMessage()
+        ], 500);
     }
-    //  return redirect()->intended('/dashboard');
-
-    // return response()->json(['message' => 'User registered successfully', 'user' => $user], 201);
-
-     return redirect()->route('dashboard')->with('success', 'Registration successful!');
 }
+
 
 public function login(Request $request)
 {

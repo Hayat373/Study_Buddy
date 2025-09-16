@@ -44,6 +44,17 @@ class User extends Authenticatable
         ];
     }
 
+
+     public function getProfilePictureUrlAttribute()
+    {
+        if ($this->profile_picture) {
+            return asset('storage/' . $this->profile_picture);
+        }
+        
+        // Default profile picture if none is set
+        return asset('images/default-profile.png');
+    }
+
     
 
    

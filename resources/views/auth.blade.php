@@ -62,18 +62,28 @@
         
         <!-- Signup Form -->
         <div class="auth-form" id="signupForm">
-            <form id="signupForm" method="POST" action="/api/register" enctype="multipart/form-data">
+            <form id="signupForm" method="POST" action="{{ route('register') }}" enctype="multipart/form-data">
                 @csrf
                 <div class="profile-picture-upload">
                     <div class="profile-preview" id="profilePreview">
                         <i class="fas fa-user-plus"></i>
                         <img id="profileImage" src="" alt="Profile Preview">
                     </div>
+                    <input type="file" id="profilePictureInput" name="profile_picture" accept="image/*" style="display: none;">
                     <div class="upload-text">
                         <p>Profile Picture</p>
                         <span>Click to upload a photo (optional)</span>
                     </div>
                 </div>
+
+                <div class="form-group">
+                  <label for="signupName">Full Name</label>
+                   <div class="input-wrapper">
+                    <i class="fas fa-user input-icon"></i>
+                     <input type="text" id="signupName" name="name" placeholder="Enter your full name" required>
+    </div>
+</div>
+
                 
                 <div class="form-group">
                     <label for="signupUsername">Username</label>
@@ -126,7 +136,7 @@
                 <div class="divider"><span>Or sign up with</span></div>
                 
               <div class="social-auth">
-                 <button type="button" class="btn btn-social" id="googleLoginBtn" onclick="window.location.href='/login/google'" style="width: 100%;">
+                 <button type="button" class="btn btn-social" id="googleSignupBtn" onclick="window.location.href='/login/google'" style="width: 100%;">
                  <i class="fab fa-google"></i>
                  Google
                  </button>

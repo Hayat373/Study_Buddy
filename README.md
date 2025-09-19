@@ -11,8 +11,6 @@ Study Buddy transforms traditional studying into an interactive experience with 
 
 ## 🚀 Features
 
-
-
 ### 🎯 Core Functionality
 - **🔐 User Authentication** - Secure registration and login system
 - **📝 Smart Flashcards** - AI-powered flashcard generation and spaced repetition

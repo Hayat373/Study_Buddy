@@ -6,8 +6,6 @@
 ![Live Chat](https://img.shields.io/badge/Live_Chat-25D366?style=for-the-badge&logo=whatsapp&logoColor=white)
 
 
-
-
 **Your all-in-one intelligent study companion designed to make learning more effective, collaborative, and enjoyable!**
 
 Study Buddy transforms traditional studying into an interactive experience with AI-powered flashcards, collaborative study groups, real-time chat, and smart scheduling - all in one beautiful, intuitive platform.
